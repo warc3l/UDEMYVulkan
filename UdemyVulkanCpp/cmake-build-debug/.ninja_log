@@ -1,0 +1,6 @@
+# ninja log v5
+364	405	1713611669881636225	UdemyVulkanCpp	54a6e62e01af37db
+4	364	1713611669838151626	CMakeFiles/UdemyVulkanCpp.dir/main.cpp.o	6b5f75f102a37f7f
+0	65	1713611902606187872	build.ninja	dacfb77ceea5d962
+3	363	1713611906977274307	CMakeFiles/UdemyVulkanCpp.dir/main.cpp.o	8f3b03f0e1f9432c
+364	402	1713611907018770318	UdemyVulkanCpp	f48f6d095e01f1f6
