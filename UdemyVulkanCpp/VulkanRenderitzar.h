@@ -21,8 +21,12 @@ public:
     int init(GLFWwindow* newWindow);
 
 private:
-    GLFWwindow* window;
 
+    const std::vector<const char*> validationLayers = {
+            "VK_LAYER_KHRONOS_validation"
+    };
+
+    GLFWwindow* window;
     VkInstance instance; // Vulkan Starts with Vk. Vulkan Type. It is just a typedef
 
     struct {
@@ -38,6 +42,10 @@ private:
 
     // Vulkan Functions
     void crearInstancia();
+
+    // Not from the Udemy course, but from
+    // https://vulkan-tutorial.com/Drawing_a_triangle/Setup/Validation_layers
+    bool checkValidationLayerSupport();
     void cleanup();
 
 

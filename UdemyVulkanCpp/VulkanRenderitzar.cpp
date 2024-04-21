@@ -85,6 +85,33 @@ void VulkanRenderitzar::createLogicalDevice() {
 
 }
 
+bool VulkanRenderitzar::checkValidationLayerSupport() {
+
+    //How many
+    uint32_t layerCount;
+    vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
+
+    // Let's get
+    std::vector<VkLayerProperties> availableLayers(layerCount);
+    vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
+
+    for (const char* layerName: validationLayers) {
+        bool layerFound = false;
+        for (const auto& layerProperties: availableLayers) {
+            if (strcmp(layerName, layerProperties.layerName) == 0) {
+                layerFound = true;
+                break;
+            }
+        }
+
+        if (!layerFound) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 
 void VulkanRenderitzar::crearInstancia() {
 
@@ -134,12 +161,16 @@ void VulkanRenderitzar::crearInstancia() {
         throw std::runtime_error("VkInstance does not support required extensions");
     }
 
+    if (!checkValidationLayerSupport()) {
+        throw std::runtime_error("Validation Layers not available");
+    }
+
     createInfo.enabledExtensionCount = static_cast<uint32_t>(instanceExtensions.size()); // Depending on the implementation, better to explicitly set this
     createInfo.ppEnabledExtensionNames = instanceExtensions.data();
 
-    // TODO: Set up validationm layer that instance will use
-    createInfo.enabledLayerCount = 0; // We will set this on videos later, as it is more complicated for now.
-    createInfo.ppEnabledLayerNames = nullptr;
+    // Validation Layer - per default, it will handle to the standard output.
+    createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size()); // We will set this on videos later, as it is more complicated for now.
+    createInfo.ppEnabledLayerNames = validationLayers.data();
 
     // FINALLY - Create an instance
     VkResult result = vkCreateInstance(&createInfo, nullptr, &instance);
