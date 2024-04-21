@@ -18,7 +18,9 @@ find_package(Vulkan REQUIRED)
 find_package(glfw3 REQUIRED)
 
 
-add_executable(UdemyVulkanCpp main.cpp)
+add_executable(UdemyVulkanCpp main.cpp
+        VulkanRenderitzar.cpp
+        VulkanRenderitzar.h)
 
 target_sources(UdemyVulkanCpp PRIVATE main.cpp)
 target_link_libraries(UdemyVulkanCpp PRIVATE Vulkan::Vulkan)

@@ -1,29 +1,40 @@
 #include "GLFW/glfw3.h"
 #include "GLM/glm.hpp"
 #include <vulkan/vulkan.h>
+#define GLFW_INCLUDE_VULKAN
+#include <GLFW/glfw3.h>
 
 #include <iostream>
+#include "VulkanRenderitzar.h"
+
+GLFWwindow* window;
+VulkanRenderitzar vulkanRenderitzar;
+
+void initWindow(std::string sName = "Window", const int width = 800, const int height = 600)
+{
+    glfwInit();
+
+    // Avoid OpenGL
+    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+
+    window = glfwCreateWindow(width, height, sName.c_str(), nullptr, nullptr);
+}
 
 int main() {
-    glfwInit();
-    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-    GLFWwindow* window = glfwCreateWindow(800, 600, "Test Punteru Window", nullptr, nullptr);
 
-    uint32_t extensionCount = 0;
-    vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
+    initWindow("Test Window", 800, 600);
 
-    std::cout << "Extension count: " << extensionCount << std::endl;
+    if ( vulkanRenderitzar.init(window) == EXIT_FAILURE ) {
+        return EXIT_FAILURE;
+    }
 
-    glm::mat4 testMatrix(1.0f);
-    glm::mat4 testVector(1.0f);
-
-    while(!glfwWindowShouldClose(window))
-    {
+    while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
     }
 
+    // Destroy and Stop
     glfwDestroyWindow(window);
-
     glfwTerminate();
 
     return 0;
