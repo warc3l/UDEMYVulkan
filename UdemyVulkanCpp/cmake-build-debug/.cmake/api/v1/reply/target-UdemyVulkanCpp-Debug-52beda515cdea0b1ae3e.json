@@ -39,13 +39,13 @@
 			{
 				"command" : 2,
 				"file" : 0,
-				"line" : 26,
+				"line" : 27,
 				"parent" : 0
 			},
 			{
 				"command" : 2,
 				"file" : 0,
-				"line" : 27,
+				"line" : 28,
 				"parent" : 0
 			},
 			{
@@ -159,7 +159,8 @@
 			"name" : "Header Files",
 			"sourceIndexes" : 
 			[
-				2
+				2,
+				3
 			]
 		}
 	],
@@ -180,6 +181,11 @@
 		{
 			"backtrace" : 1,
 			"path" : "VulkanRenderitzar.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "Util.h",
 			"sourceGroupIndex" : 1
 		}
 	],

@@ -11,6 +11,7 @@
 #include <stdexcept>
 #include <vector>
 #include <iostream>
+#include "Util.h"
 
 class VulkanRenderitzar {
 
@@ -24,12 +25,27 @@ private:
 
     VkInstance instance; // Vulkan Starts with Vk. Vulkan Type. It is just a typedef
 
+    struct {
+        VkPhysicalDevice physicalDevice;
+        VkDevice logicalDevice;
+
+    } mainDevice;
+    VkQueue graphicsQueue;
+
+    void getPhysicalDevice();
+    void createLogicalDevice();
+
+
     // Vulkan Functions
     void crearInstancia();
+    void cleanup();
 
 
     // Support
     bool checkInstanceExtensionSupport(std::vector<const char*>* checkExtensions);
+    bool checkDeviceSuitable(VkPhysicalDevice device);
+
+    QueueFamilyIndices getQueueFamilies(VkPhysicalDevice devicee);
 
 };
 
