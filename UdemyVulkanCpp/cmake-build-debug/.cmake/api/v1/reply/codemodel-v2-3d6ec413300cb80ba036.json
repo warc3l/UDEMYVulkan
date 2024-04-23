@@ -39,7 +39,7 @@
 				{
 					"directoryIndex" : 0,
 					"id" : "UdemyVulkanCpp::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-UdemyVulkanCpp-Debug-d441eb3503e4aad326e3.json",
+					"jsonFile" : "target-UdemyVulkanCpp-Debug-977c1804f7da98a59d5f.json",
 					"name" : "UdemyVulkanCpp",
 					"projectIndex" : 0
 				}
@@ -49,7 +49,7 @@
 	"kind" : "codemodel",
 	"paths" : 
 	{
-		"build" : "/Users/marcelvilaltaisoler/Projects/UDEMY/UDEMYVulkan/UdemyVulkanCpp/cmake-build-debug-coverage",
+		"build" : "/Users/marcelvilaltaisoler/Projects/UDEMY/UDEMYVulkan/UdemyVulkanCpp/cmake-build-debug",
 		"source" : "/Users/marcelvilaltaisoler/Projects/UDEMY/UDEMYVulkan/UdemyVulkanCpp"
 	},
 	"version" : 

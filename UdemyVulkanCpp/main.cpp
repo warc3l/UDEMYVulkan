@@ -1,42 +1,49 @@
-#include "GLFW/glfw3.h"
-#include "GLM/glm.hpp"
-#include <vulkan/vulkan.h>
 #define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
+#include "GLFW/glfw3.h"
 
+#include <stdexcept>
+#include <vector>
 #include <iostream>
-#include "VulkanRenderitzar.h"
 
-GLFWwindow* window;
-VulkanRenderitzar vulkanRenderitzar;
+#include "VulkanRenderer.h"
 
-void initWindow(std::string sName = "Window", const int width = 800, const int height = 600)
+GLFWwindow * window;
+VulkanRenderer vulkanRenderer;
+
+void initWindow(std::string wName = "Test Window", const int width = 800, const int height = 600)
 {
-    glfwInit();
+	// Initialise GLFW
+	glfwInit();
 
-    // Avoid OpenGL
-    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+	// Set GLFW to NOT work with OpenGL
+	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
-    window = glfwCreateWindow(width, height, sName.c_str(), nullptr, nullptr);
+	window = glfwCreateWindow(width, height, wName.c_str(), nullptr, nullptr);
 }
 
-int main() {
+int main()
+{
+	// Create Window
+	initWindow("Test Window", 800, 600);
 
-    initWindow("Test Window", 800, 600);
+	// Create Vulkan Renderer instance
+	if (vulkanRenderer.init(window) == EXIT_FAILURE)
+	{
+		return EXIT_FAILURE;
+	}
 
-    if ( vulkanRenderitzar.init(window) == EXIT_FAILURE ) {
-        return EXIT_FAILURE;
-    }
+	// Loop until closed
+	while (!glfwWindowShouldClose(window))
+	{
+		glfwPollEvents();
+	}
 
-    while (!glfwWindowShouldClose(window)) {
-        glfwPollEvents();
-    }
+	vulkanRenderer.cleanup();
 
-    // Destroy and Stop
-    vulkanRenderitzar.cleanup();
-    glfwDestroyWindow(window);
-    glfwTerminate();
+	// Destroy GLFW window and stop GLFW
+	glfwDestroyWindow(window);
+	glfwTerminate();
 
-    return 0;
+	return 0;
 }
