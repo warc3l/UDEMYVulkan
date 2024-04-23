@@ -5,14 +5,17 @@
 #ifndef UDEMYVULKANCPP_UTIL_H
 #define UDEMYVULKANCPP_UTIL_H
 
-#include <vulkan/vulkan_beta.h>
+
+const std::vector<const char *> deviceExtensions = {
+        VK_KHR_SWAPCHAIN_EXTENSION_NAME
+};
 
 
 // Indices (locations) of Queues families if they exist at all
 
 struct QueueFamilyIndices {
-    uint32_t graphicsFamily = -1; // Location of the Graphic family
-    uint32_t presentationFamily = -1;
+    int graphicsFamily = -1; // Location of the Graphic family
+    int presentationFamily = -1;
 
     bool isValid() {
         return graphicsFamily >= 0 && presentationFamily >= 0;

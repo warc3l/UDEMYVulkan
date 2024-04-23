@@ -23,30 +23,24 @@ public:
     int init(GLFWwindow* newWindow);
     void cleanup();
 
+    ~VulkanRenderitzar();
+
 private:
-    std::vector<VkDeviceQueueCreateInfo> queueCreateInfos = {};
+    GLFWwindow* window;
 
-
-
-    const std::vector<const char*> deviceExtensions = {
-        VK_KHR_SWAPCHAIN_EXTENSION_NAME
-    };
+    VkInstance instance; // Vulkan Starts with Vk. Vulkan Type. It is just a typedef
+    struct {
+        VkPhysicalDevice physicalDevice;
+        VkDevice logicalDevice;
+    } mainDevice;
+    VkQueue graphicsQueue;
+    VkQueue presentationQueue;
+    VkSurfaceKHR surface;
 
     const std::vector<const char*> validationLayers = {
             "VK_LAYER_KHRONOS_validation"
     };
 
-    GLFWwindow* window;
-    VkInstance instance = {}; // Vulkan Starts with Vk. Vulkan Type. It is just a typedef
-
-    struct {
-        VkPhysicalDevice physicalDevice;
-        VkDevice logicalDevice;
-
-    } mainDevice{0};
-    VkQueue graphicsQueue = {};
-    VkQueue presentationQueue = {};
-    VkSurfaceKHR surface = {};
 
 
     void crearInstancia();
