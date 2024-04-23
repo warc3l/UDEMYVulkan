@@ -13,7 +13,9 @@ int VulkanRenderitzar::init(GLFWwindow* newWindow) {
 
     try {
         crearInstancia();
-        getPhysicalDevice();
+        createSurface();
+        getPhysicalDevice(); // Both checks depending on the surface.
+        createLogicalDevice(); // Make sure that the device supports the surface that we select.
     } catch(const std::runtime_error & e) {
         std::cout << "ERROR: " << e.what() << std::endl;
         return EXIT_FAILURE;
@@ -46,34 +48,48 @@ void VulkanRenderitzar::getPhysicalDevice() {
 
 
     // We need to link the physical device found with the logical device.
+}
 
+void VulkanRenderitzar::createSurface() {
+    // We can take benefit of GLFW built-in function to know which operating systme
+    // we are working on
+
+    // Crete the Surface
+    VkResult result = glfwCreateWindowSurface(instance, window, nullptr, &surface);
+    if (result != VK_SUCCESS) {
+        throw std::runtime_error("Cannot create a surface for the window due to " + std::to_string(result));
+    }
 }
 
 void VulkanRenderitzar::createLogicalDevice() {
-
     QueueFamilyIndices indices = getQueueFamilies(mainDevice.physicalDevice);
 
-    VkDeviceQueueCreateInfo queueCreateInfo = {};
-    queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-    queueCreateInfo.queueFamilyIndex = indices.graphicsFamily;
-    queueCreateInfo.queueCount = 1;
+    std::set<uint32_t> queueFamilyIndices = {indices.graphicsFamily, indices.presentationFamily };
+
     float priority = 1.0f;
-    queueCreateInfo.pQueuePriorities = &priority;
+
+    for (auto queueFamilyIndex : queueFamilyIndices) {
+        VkDeviceQueueCreateInfo queueCreateInfo = {};
+        queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+        queueCreateInfo.queueFamilyIndex = queueFamilyIndex;
+        queueCreateInfo.queueCount = 1;
+        queueCreateInfo.pQueuePriorities = &priority;
+
+        queueCreateInfos.emplace_back(queueCreateInfo);
+    }
 
 
     // Informamtion to create the logical device.s
     VkDeviceCreateInfo deviceCreateInfo = {};
     deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-    deviceCreateInfo.queueCreateInfoCount = 1;  // Number of Queues Create Infos
-    deviceCreateInfo.pQueueCreateInfos = &queueCreateInfo;
-    deviceCreateInfo.enabledExtensionCount = 0; // We do not have for now extensions for the DEVICE (but yes for the instance)
-    deviceCreateInfo.ppEnabledLayerNames = nullptr;
-    deviceCreateInfo.enabledLayerCount = 0;
+    deviceCreateInfo.queueCreateInfoCount = 0;//static_cast<uint32_t>(queueCreateInfos.size());  // Number of Queues Create Infos
+    deviceCreateInfo.pQueueCreateInfos = nullptr;//queueCreateInfos.data();
 
-    // Physical Devices features the logical device will be using;
-    VkPhysicalDeviceFeatures deviceFeatures = {};
-    deviceCreateInfo.pEnabledFeatures = &deviceFeatures; // Physical Device features logical device will use
 
+    deviceCreateInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size()); // We do not have for now extensions for the DEVICE (but yes for the instance)
+    deviceCreateInfo.ppEnabledLayerNames = deviceExtensions.data(); // The Device Extensions are predefined before, then, we validate that we actually have them. If not, throw errors
+
+    // Creates Devices and Queues
     VkResult result = vkCreateDevice(mainDevice.physicalDevice, &deviceCreateInfo, nullptr, &mainDevice.logicalDevice);
     if (result != VK_SUCCESS) {
         throw std::runtime_error("Could not create a Logical Device due to " + std::to_string(result));
@@ -82,8 +98,39 @@ void VulkanRenderitzar::createLogicalDevice() {
     // Get a reference of the Queue Family graphics to able to clean-up later
     vkGetDeviceQueue(mainDevice.logicalDevice, indices.graphicsFamily, 0, &graphicsQueue);
 
-
+    // We just a handle of the Presentation. This does not create the queue, just gets the references.
+    vkGetDeviceQueue(mainDevice.logicalDevice, indices.presentationFamily, 0, &presentationQueue);
 }
+
+
+SwapChainDetails VulkanRenderitzar::getSwapChainDetails(VkPhysicalDevice device) {
+    SwapChainDetails result;
+
+    // Get the surface capabilities for the given surface on the given physical device
+    vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface, &result.surfaceCapabilities);
+
+    // Let's get the Formats
+    uint32_t  formatCount = 0;
+    vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &formatCount, nullptr);
+
+    if (formatCount > 0) {
+        result.formats.resize(formatCount);
+        vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &formatCount, result.formats.data());
+    }
+
+    // Lastly, we need to get the presentation mode, similar way as we did
+    uint32_t presentationCount = 0;
+    vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &presentationCount, nullptr);
+
+    if (presentationCount > 0) {
+        result.presentationsModes.resize(presentationCount);
+        vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &presentationCount, result.presentationsModes.data());
+    }
+
+
+    return result;
+}
+
 
 bool VulkanRenderitzar::checkValidationLayerSupport() {
 
@@ -143,13 +190,14 @@ void VulkanRenderitzar::crearInstancia() {
     std::vector<const char*> instanceExtensions = std::vector<const char*>();
 
     uint32_t glfwExtensionCount = 0; // we will increment it, GLFW may require multiple
-    const char** glfwExtensions;    // Extensions
+    const char** glfwExtensions = {};    // Extensions
     glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
 
     // Add GLFW extension to list of extensions
     for (int i = 0; i < glfwExtensionCount; i++) {
         instanceExtensions.push_back(glfwExtensions[i]);
     }
+    // instanceExtensions.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
 
     // In case of MacOS...
     instanceExtensions.push_back(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME);
@@ -186,11 +234,53 @@ void VulkanRenderitzar::crearInstancia() {
 
 }
 
+void VulkanRenderitzar::checkPortabilitySubsetExtension(VkPhysicalDevice device) {
+    portabilityFeatures = {};
+    portabilityFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
+    VkPhysicalDeviceFeatures2 physicalDeviceFeatures2 = {};
+    physicalDeviceFeatures2.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
+    physicalDeviceFeatures2.pNext = &portabilityFeatures;
+    vkGetPhysicalDeviceFeatures2(device, &physicalDeviceFeatures2);
+}
+
 void VulkanRenderitzar::cleanup() {
+    vkDestroySurfaceKHR(instance, surface, nullptr);
     vkDestroyDevice(mainDevice.logicalDevice, nullptr);
     vkDestroyInstance(instance, nullptr);
 }
 
+
+bool VulkanRenderitzar::checkDeviceExtensionSupport(VkPhysicalDevice device) {
+
+    // How many
+    uint32_t extensionCount;
+    vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
+
+    if (extensionCount == 0) {
+        return false; // no extensions.
+    }
+
+    // Let's get
+    std::vector<VkExtensionProperties> extensions(extensionCount);
+    vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, extensions.data());
+
+
+    for (auto const& deviceExtension: deviceExtensions) {
+        bool hasExtension = false;
+        for (const auto& extension: extensions) {
+            if (strcmp(deviceExtension, extension.extensionName) == 0) {
+                hasExtension = true;
+                break;
+            }
+        }
+
+        if (!hasExtension) {
+            return false;
+        }
+    }
+
+    return true;
+}
 
 bool VulkanRenderitzar::checkInstanceExtensionSupport(std::vector<const char*>* checkExtensions) {
     // We need to check twice, once for the size, and other for the allocate.
@@ -238,7 +328,17 @@ bool VulkanRenderitzar::checkDeviceSuitable(VkPhysicalDevice device) {
 
     QueueFamilyIndices indices = getQueueFamilies(device);
 
-    return indices.isValid(); // we will return on this later, for when doing queue families.
+    // Support the extension?
+    bool extensionSupported = checkDeviceExtensionSupport(device);
+
+    bool swapChainValid = false;
+    if (extensionSupported) {
+        SwapChainDetails swapChainDetails = getSwapChainDetails(device);
+        swapChainValid = !swapChainDetails.presentationsModes.empty() && !swapChainDetails.formats.empty();
+    }
+
+    checkPortabilitySubsetExtension(device);
+    return indices.isValid() && extensionSupported && swapChainValid; // we will return on this later, for when doing queue families.
 }
 
 
@@ -255,12 +355,20 @@ QueueFamilyIndices VulkanRenderitzar::getQueueFamilies(VkPhysicalDevice device) 
 
     // Go through each equeu family and check it has at least 1 of the required type of the queu.
 
-    int i = 0;// it would be better to use for loop instead of a foreach one
+    uint32_t i = 0;// it would be better to use for loop instead of a foreach one
     for (const auto& queueFamily: queueFamilyList) {
         // We are going to check if the VK GRAPHICS QUEUE is there
         if (queueFamily.queueCount > 0 && queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
             // what is the index of the queue family?
             indices.graphicsFamily = i;
+        }
+
+        // We need to check the presentation family as well
+        VkBool32 presentationSupport = false;
+        vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface, &presentationSupport);
+        // Can we check both if graphics and presenations queue
+        if (queueFamily.queueCount > 0 && presentationSupport) {
+            indices.presentationFamily = i;
         }
 
         if (indices.isValid()) {

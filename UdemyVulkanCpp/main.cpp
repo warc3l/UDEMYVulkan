@@ -34,6 +34,7 @@ int main() {
     }
 
     // Destroy and Stop
+    vulkanRenderitzar.cleanup();
     glfwDestroyWindow(window);
     glfwTerminate();
 

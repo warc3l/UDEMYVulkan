@@ -1,18 +1,4 @@
 # ninja log v5
-383	417	1713699794653530564	UdemyVulkanCpp	a4861a288806af47
-3	430	1713636345101214357	CMakeFiles/UdemyVulkanCpp.dir/main.cpp.o	8f3b03f0e1f9432c
-0	65	1713702795114159439	build.ninja	dacfb77ceea5d962
-3	383	1713699794618143263	CMakeFiles/UdemyVulkanCpp.dir/VulkanRenderitzar.cpp.o	1c6354b7def61dfd
-3	412	1713705306773198754	CMakeFiles/UdemyVulkanCpp.dir/main.cpp.o	8f3b03f0e1f9432c
-5	419	1713705306781218452	CMakeFiles/UdemyVulkanCpp.dir/VulkanRenderitzar.cpp.o	1c6354b7def61dfd
-419	473	1713705306835061821	UdemyVulkanCpp	a4861a288806af47
-3	424	1713709566017395070	CMakeFiles/UdemyVulkanCpp.dir/main.cpp.o	8f3b03f0e1f9432c
-4	458	1713709566050632466	CMakeFiles/UdemyVulkanCpp.dir/VulkanRenderitzar.cpp.o	1c6354b7def61dfd
-458	494	1713709566089228602	UdemyVulkanCpp	a4861a288806af47
-3	409	1713709679065376987	CMakeFiles/UdemyVulkanCpp.dir/main.cpp.o	8f3b03f0e1f9432c
-3	423	1713709679080146292	CMakeFiles/UdemyVulkanCpp.dir/VulkanRenderitzar.cpp.o	1c6354b7def61dfd
-423	457	1713709679116416557	UdemyVulkanCpp	a4861a288806af47
-3	430	1713709731542023392	CMakeFiles/UdemyVulkanCpp.dir/VulkanRenderitzar.cpp.o	1c6354b7def61dfd
-430	465	1713709731579754863	UdemyVulkanCpp	a4861a288806af47
-3	431	1713709748117400794	CMakeFiles/UdemyVulkanCpp.dir/VulkanRenderitzar.cpp.o	1c6354b7def61dfd
-431	465	1713709748154206349	UdemyVulkanCpp	a4861a288806af47
+4	510	1713906607703700426	CMakeFiles/UdemyVulkanCpp.dir/main.cpp.o	ed583320276065d9
+601	646	1713906607847677359	UdemyVulkanCpp	a4861a288806af47
+4	601	1713906607799048839	CMakeFiles/UdemyVulkanCpp.dir/VulkanRenderitzar.cpp.o	63cda58c3fe64d58

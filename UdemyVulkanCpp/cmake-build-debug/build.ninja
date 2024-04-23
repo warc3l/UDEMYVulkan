@@ -51,14 +51,14 @@ build cmake_object_order_depends_target_UdemyVulkanCpp: phony || CMakeFiles/Udem
 
 build CMakeFiles/UdemyVulkanCpp.dir/main.cpp.o: CXX_COMPILER__UdemyVulkanCpp_unscanned_Debug /Users/marcelvilaltaisoler/Projects/UDEMY/UDEMYVulkan/UdemyVulkanCpp/main.cpp || cmake_object_order_depends_target_UdemyVulkanCpp
   DEP_FILE = CMakeFiles/UdemyVulkanCpp.dir/main.cpp.o.d
-  FLAGS = -g -std=gnu++2b -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.4.sdk -fcolor-diagnostics
+  FLAGS = -g -std=gnu++17 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.4.sdk -fcolor-diagnostics
   INCLUDES = -I/Users/marcelvilaltaisoler/Projects/UDEMY/UDEMYVulkan/UdemyVulkanCpp/externals/GLFW/include -I/Users/marcelvilaltaisoler/Projects/UDEMY/UDEMYVulkan/UdemyVulkanCpp/externals/glm-0.9.9.8 -isystem /usr/local/include
   OBJECT_DIR = CMakeFiles/UdemyVulkanCpp.dir
   OBJECT_FILE_DIR = CMakeFiles/UdemyVulkanCpp.dir
 
 build CMakeFiles/UdemyVulkanCpp.dir/VulkanRenderitzar.cpp.o: CXX_COMPILER__UdemyVulkanCpp_unscanned_Debug /Users/marcelvilaltaisoler/Projects/UDEMY/UDEMYVulkan/UdemyVulkanCpp/VulkanRenderitzar.cpp || cmake_object_order_depends_target_UdemyVulkanCpp
   DEP_FILE = CMakeFiles/UdemyVulkanCpp.dir/VulkanRenderitzar.cpp.o.d
-  FLAGS = -g -std=gnu++2b -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.4.sdk -fcolor-diagnostics
+  FLAGS = -g -std=gnu++17 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.4.sdk -fcolor-diagnostics
   INCLUDES = -I/Users/marcelvilaltaisoler/Projects/UDEMY/UDEMYVulkan/UdemyVulkanCpp/externals/GLFW/include -I/Users/marcelvilaltaisoler/Projects/UDEMY/UDEMYVulkan/UdemyVulkanCpp/externals/glm-0.9.9.8 -isystem /usr/local/include
   OBJECT_DIR = CMakeFiles/UdemyVulkanCpp.dir
   OBJECT_FILE_DIR = CMakeFiles/UdemyVulkanCpp.dir

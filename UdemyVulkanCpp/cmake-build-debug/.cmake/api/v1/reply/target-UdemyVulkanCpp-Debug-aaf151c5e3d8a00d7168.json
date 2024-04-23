@@ -68,7 +68,7 @@
 			"compileCommandFragments" : 
 			[
 				{
-					"fragment" : "-g -std=gnu++2b -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.4.sdk -fcolor-diagnostics"
+					"fragment" : "-g -std=gnu++17 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.4.sdk -fcolor-diagnostics"
 				}
 			],
 			"includes" : 
@@ -94,7 +94,7 @@
 				[
 					1
 				],
-				"standard" : "23"
+				"standard" : "17"
 			},
 			"sourceIndexes" : 
 			[
