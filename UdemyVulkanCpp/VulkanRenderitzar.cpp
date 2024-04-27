@@ -26,6 +26,11 @@ int VulkanRenderitzar::init(GLFWwindow* newWindow) {
 }
 
 void VulkanRenderitzar::cleanup() {
+
+    for (auto image: swapChainImages) {
+        vkDestroyImageView(mainDevice.logicalDevice, image.imageView, nullptr);
+    }
+
     vkDestroySwapchainKHR(mainDevice.logicalDevice, swapChain, nullptr);
     vkDestroySurfaceKHR(instance, surface, nullptr);
     vkDestroyDevice(mainDevice.logicalDevice, nullptr);
@@ -230,7 +235,60 @@ void VulkanRenderitzar::createSwapChain() {
     if (result != VK_SUCCESS) {
         throw std::runtime_error("Cannot create SwapChain due to " + std::to_string(result));
     }
+
+    // Save these values.
+    swapChainImageFormat = surfaceFormatKhr.format;
+    swapChainExtent = extent;
+
+
+    // Get Swap Images Count
+    uint32_t swapImagesCount;
+    vkGetSwapchainImagesKHR(mainDevice.logicalDevice, swapChain, &swapImagesCount, nullptr);
+    std::vector<VkImage> images(swapImagesCount);
+    vkGetSwapchainImagesKHR(mainDevice.logicalDevice, swapChain, &swapImagesCount, images.data());
+
+    for (VkImage image: images) {
+        // Store image handle
+        SwapChainImage swapChainImage = {};
+        swapChainImage.image = image;
+
+        // CREATE IMAGE VIEW HERE
+        swapChainImage.imageView = createImageView(image, swapChainImageFormat, VK_IMAGE_ASPECT_COLOR_BIT);
+        swapChainImages.push_back(swapChainImage);
+    }
+
 }
+
+VkImageView VulkanRenderitzar::createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags)
+{
+    VkImageViewCreateInfo viewCreateInfo = {};
+    viewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+    viewCreateInfo.image = image;
+    viewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+    viewCreateInfo.format = format;
+    // Similar about OpenGL swizzle
+    viewCreateInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;        // Allows remapping rgba components to other rgba values
+    viewCreateInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+    viewCreateInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+    viewCreateInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
+
+    // Subsources allow the view to view only part of image.
+    viewCreateInfo.subresourceRange.aspectMask = aspectFlags; // We for now the color space. Which aspect to use
+    viewCreateInfo.subresourceRange.baseMipLevel = 0;
+    viewCreateInfo.subresourceRange.levelCount = 1;
+    viewCreateInfo.subresourceRange.baseArrayLayer = 0;
+    viewCreateInfo.subresourceRange.layerCount = 1;
+
+    VkImageView imageView;
+
+    VkResult result = vkCreateImageView(mainDevice.logicalDevice, &viewCreateInfo, nullptr, &imageView);
+
+    if (result != VK_SUCCESS) {
+        throw std::runtime_error("Problem to create the image VIEW " + std::to_string(result));
+    }
+    return imageView;
+}
+
 
 
 // Best format is subjetive but based on the Udemy recommendation is VK_FORMAT_R8GB8A8 (omg why that many 8 and B)

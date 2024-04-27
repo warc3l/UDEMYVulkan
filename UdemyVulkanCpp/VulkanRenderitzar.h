@@ -39,6 +39,10 @@ private:
     VkSurfaceKHR surface;
     VkSwapchainKHR swapChain;
 
+    VkFormat swapChainImageFormat;
+    VkExtent2D swapChainExtent;
+    std::vector<SwapChainImage> swapChainImages;
+
     const std::vector<const char*> validationLayers = {
             "VK_LAYER_KHRONOS_validation"
     };
@@ -75,6 +79,10 @@ private:
     VkSurfaceFormatKHR chooseSurfaceFormat (const std::vector<VkSurfaceFormatKHR>& formats);
     VkPresentModeKHR  chooseBestPresentationMode(const std::vector<VkPresentModeKHR>& presentationModes);
     VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& surfaceCapabilitiesKhr);
+
+
+    VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
+
 };
 
 
