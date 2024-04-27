@@ -12,6 +12,7 @@
 #include <set>
 #include <stdexcept>
 #include <vector>
+#include <algorithm>
 #include <iostream>
 #include "Util.h"
 
@@ -36,6 +37,7 @@ private:
     VkQueue graphicsQueue;
     VkQueue presentationQueue;
     VkSurfaceKHR surface;
+    VkSwapchainKHR swapChain;
 
     const std::vector<const char*> validationLayers = {
             "VK_LAYER_KHRONOS_validation"
@@ -47,6 +49,7 @@ private:
     void getPhysicalDevice();
     void createLogicalDevice();
     void createSurface();
+    void createSwapChain();
 
     // Not from the Udemy course, but from
     // https://vulkan-tutorial.com/Drawing_a_triangle/Setup/Validation_layers
@@ -69,7 +72,9 @@ private:
     QueueFamilyIndices getQueueFamilies(VkPhysicalDevice devicee);
     SwapChainDetails getSwapChainDetails(VkPhysicalDevice device);
 
-
+    VkSurfaceFormatKHR chooseSurfaceFormat (const std::vector<VkSurfaceFormatKHR>& formats);
+    VkPresentModeKHR  chooseBestPresentationMode(const std::vector<VkPresentModeKHR>& presentationModes);
+    VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& surfaceCapabilitiesKhr);
 };
 
 

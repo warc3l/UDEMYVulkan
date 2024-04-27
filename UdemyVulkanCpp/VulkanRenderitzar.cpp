@@ -16,6 +16,7 @@ int VulkanRenderitzar::init(GLFWwindow* newWindow) {
         createSurface();
         getPhysicalDevice(); // Both checks depending on the surface.
         createLogicalDevice(); // Make sure that the device supports the surface that we select.
+        createSwapChain();
     } catch(const std::runtime_error & e) {
         std::cout << "ERROR: " << e.what() << std::endl;
         return EXIT_FAILURE;
@@ -25,6 +26,7 @@ int VulkanRenderitzar::init(GLFWwindow* newWindow) {
 }
 
 void VulkanRenderitzar::cleanup() {
+    vkDestroySwapchainKHR(mainDevice.logicalDevice, swapChain, nullptr);
     vkDestroySurfaceKHR(instance, surface, nullptr);
     vkDestroyDevice(mainDevice.logicalDevice, nullptr);
     vkDestroyInstance(instance, nullptr);
@@ -167,6 +169,116 @@ void VulkanRenderitzar::createSurface() {
     if (result != VK_SUCCESS) {
         throw std::runtime_error("Cannot create a surface for the window due to " + std::to_string(result));
     }
+}
+
+void VulkanRenderitzar::createSwapChain() {
+    SwapChainDetails swapChainDetails = getSwapChainDetails(mainDevice.physicalDevice);
+
+    // 1. We need to choose the BEST surface format
+    VkSurfaceFormatKHR surfaceFormatKhr = chooseSurfaceFormat(swapChainDetails.formats);
+
+    // 2. Choose the Presentation mode
+    VkPresentModeKHR  presentModeKhr = chooseBestPresentationMode(swapChainDetails.presentationsModes);
+
+    // 3. Chose the SWAP IMAGE RESOLUTION
+    VkExtent2D extent = chooseSwapExtent(swapChainDetails.surfaceCapabilities);
+
+    // How many images are in the swap chain?
+    uint32_t imageCount = swapChainDetails.surfaceCapabilities.minImageCount + 1;
+    if (swapChainDetails.surfaceCapabilities.maxImageCount < imageCount > 0 && swapChainDetails.surfaceCapabilities.maxImageCount < imageCount) {
+        imageCount = swapChainDetails.surfaceCapabilities.maxImageCount;
+    }
+
+    VkSwapchainCreateInfoKHR swapchainCreateInfoKhr = {};
+    swapchainCreateInfoKhr.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+    swapchainCreateInfoKhr.imageFormat = surfaceFormatKhr.format;
+    swapchainCreateInfoKhr.surface = surface;
+    swapchainCreateInfoKhr.imageColorSpace = surfaceFormatKhr.colorSpace;
+    swapchainCreateInfoKhr.presentMode = presentModeKhr;
+    swapchainCreateInfoKhr.imageExtent = extent;
+    swapchainCreateInfoKhr.minImageCount = imageCount;
+    swapchainCreateInfoKhr.imageArrayLayers = 1;
+    swapchainCreateInfoKhr.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+    swapchainCreateInfoKhr.preTransform = swapChainDetails.surfaceCapabilities.currentTransform;
+    swapchainCreateInfoKhr.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+    swapchainCreateInfoKhr.clipped = VK_TRUE;
+
+
+    QueueFamilyIndices indices = getQueueFamilies(mainDevice.physicalDevice);
+
+    if (indices.graphicsFamily != indices.presentationFamily) {
+        uint32_t queueFamilyIndices[] = {
+                (uint32_t) indices.graphicsFamily,
+                (uint32_t) indices.presentationFamily
+        };
+
+        swapchainCreateInfoKhr.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
+        swapchainCreateInfoKhr.queueFamilyIndexCount = 2;
+        swapchainCreateInfoKhr.pQueueFamilyIndices = queueFamilyIndices;
+    } else {
+        // Only one queue. Graphcis and Presentation family are the same here
+        // This is our case here
+        swapchainCreateInfoKhr.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
+        swapchainCreateInfoKhr.queueFamilyIndexCount = 0;
+        swapchainCreateInfoKhr.pQueueFamilyIndices = nullptr;
+    }
+
+    // Useful when resizing the window
+    swapchainCreateInfoKhr.oldSwapchain = VK_NULL_HANDLE;
+
+    VkResult result = vkCreateSwapchainKHR(mainDevice.logicalDevice, &swapchainCreateInfoKhr, nullptr, &swapChain);
+    if (result != VK_SUCCESS) {
+        throw std::runtime_error("Cannot create SwapChain due to " + std::to_string(result));
+    }
+}
+
+
+// Best format is subjetive but based on the Udemy recommendation is VK_FORMAT_R8GB8A8 (omg why that many 8 and B)
+VkSurfaceFormatKHR VulkanRenderitzar::chooseSurfaceFormat (const std::vector<VkSurfaceFormatKHR>& formats)
+{
+    if (formats.size() == 1 && formats[0].format == VK_FORMAT_UNDEFINED)
+    {
+        return {VK_FORMAT_R8G8B8A8_UNORM, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR};
+    }
+
+    for (const auto& format: formats) {
+        if ((format.format == VK_FORMAT_R8G8B8A8_UNORM || format.format == VK_FORMAT_B8G8R8A8_UNORM) && format.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
+            return format;
+        }
+    }
+
+    return formats[0];
+}
+
+VkPresentModeKHR VulkanRenderitzar::chooseBestPresentationMode(const std::vector<VkPresentModeKHR>& presentationModes) {
+    for (const auto&presentationMode: presentationModes) {
+        if (presentationMode == VK_PRESENT_MODE_MAILBOX_KHR) {
+            return presentationMode;
+        }
+    }
+    return VK_PRESENT_MODE_FIFO_KHR;
+}
+
+VkExtent2D VulkanRenderitzar::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& surfaceCapabilitiesKhr)
+{
+    if ( surfaceCapabilitiesKhr.currentExtent.width != std::numeric_limits<uint32_t>::max() ) {
+        return surfaceCapabilitiesKhr.currentExtent;
+    }
+
+    // Otherwise, we need to find it ourselves. It means that the value can vary
+    int width, height;
+    glfwGetFramebufferSize(window, &width, &height); // The actual width/height of the window
+
+    // We need to create a new extend with the window size
+    VkExtent2D newExtent = {};
+    newExtent.width = static_cast<uint32_t>(width);
+    newExtent.height = static_cast<uint32_t>(height);
+
+    // We need to make sure that within the boundaries by clamping the value.
+    newExtent.width = std::max(surfaceCapabilitiesKhr.minImageExtent.width, std::min(surfaceCapabilitiesKhr.maxImageExtent.width, newExtent.width));
+    newExtent.height = std::max(surfaceCapabilitiesKhr.minImageExtent.height, std::min(surfaceCapabilitiesKhr.maxImageExtent.height, newExtent.height));
+
+    return newExtent;
 }
 
 
