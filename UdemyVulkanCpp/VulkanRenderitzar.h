@@ -13,6 +13,7 @@
 #include <stdexcept>
 #include <vector>
 #include <algorithm>
+#include <array>
 #include <iostream>
 #include "Util.h"
 
@@ -47,6 +48,11 @@ private:
             "VK_LAYER_KHRONOS_validation"
     };
 
+    // Pipeline, can do
+    VkPipeline graphicsPipeline;
+    VkPipelineLayout pipelineLayout;
+    VkRenderPass renderPass;
+
 
 
     void crearInstancia();
@@ -54,6 +60,8 @@ private:
     void createLogicalDevice();
     void createSurface();
     void createSwapChain();
+    void createRenderPass();
+    void createGraphicsPipeline();
 
     // Not from the Udemy course, but from
     // https://vulkan-tutorial.com/Drawing_a_triangle/Setup/Validation_layers
@@ -82,7 +90,7 @@ private:
 
 
     VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
-
+    VkShaderModule createShaderModule(const std::vector<char>& code);
 };
 
 

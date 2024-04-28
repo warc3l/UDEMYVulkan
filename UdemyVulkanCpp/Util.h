@@ -5,9 +5,12 @@
 #ifndef UDEMYVULKANCPP_UTIL_H
 #define UDEMYVULKANCPP_UTIL_H
 
+#include <fstream>
+#include <vulkan/vulkan_beta.h>
 
 const std::vector<const char *> deviceExtensions = {
-        VK_KHR_SWAPCHAIN_EXTENSION_NAME
+        VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+        VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME
 };
 
 
@@ -33,6 +36,27 @@ struct SwapChainImage {
     VkImage image;
     VkImageView imageView;
 };
+
+static std::vector<char> readFile(const std::string& filename)
+{
+    std::ifstream file(filename, std::ios::binary | std::ios::ate);
+
+    // Check file
+    if (!file.is_open()) {
+        throw std::runtime_error("Failed to open he file " + filename);
+    }
+
+    // Current read position for the resize the filebuffer
+    size_t fileSize = (size_t) file.tellg();
+    std::vector<char> fileBuffer(fileSize);
+    file.seekg(0);
+
+    file.read(fileBuffer.data(), fileSize);
+
+    file.close();
+
+    return fileBuffer;
+}
 
 
 
