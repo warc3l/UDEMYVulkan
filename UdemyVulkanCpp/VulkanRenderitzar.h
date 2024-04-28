@@ -16,6 +16,7 @@
 #include <array>
 #include <iostream>
 #include "Util.h"
+#include "Mesh.h"
 
 class VulkanRenderitzar {
 
@@ -34,6 +35,9 @@ private:
     int currentFrame = 0;
 
     GLFWwindow* window;
+
+    // Scene objects
+    Mesh firstMesh;
 
     VkInstance instance; // Vulkan Starts with Vk. Vulkan Type. It is just a typedef
     struct {

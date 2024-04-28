@@ -1,18 +1,24 @@
 //
 // Created by Marcel Vilalta i Soler on 21/4/24.
 //
-
+#pragma once
 #ifndef UDEMYVULKANCPP_UTIL_H
 #define UDEMYVULKANCPP_UTIL_H
 
 #include <fstream>
 #include <vulkan/vulkan_beta.h>
+#include <GLM/glm.hpp>
+#include <vector>
 
 const int MAX_FRAME_DRAW = 2;
 
 const std::vector<const char *> deviceExtensions = {
         VK_KHR_SWAPCHAIN_EXTENSION_NAME,
         VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME
+};
+
+struct Vertex {
+    glm::vec3 pos;
 };
 
 

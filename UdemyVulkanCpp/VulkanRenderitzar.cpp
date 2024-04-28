@@ -16,6 +16,16 @@ int VulkanRenderitzar::init(GLFWwindow* newWindow) {
         createSurface(); // We have access to the "surface" to draw to
         getPhysicalDevice(); // Both checks depending on the surface.
         createLogicalDevice(); // We have the device to draw to
+
+        std::vector<Vertex> meshVertices = {
+                {{0.0, -0.4, 0.0}},
+                {{0.4, 0.4, 0.0}},
+                {{-0.4, 0.4, 0.0}},
+        };
+
+        firstMesh = Mesh(mainDevice.physicalDevice, mainDevice.logicalDevice, &meshVertices);
+
+
         createSwapChain(); // We can have access to the images which we can keep switching out to the screen
         createRenderPass(); // We have something commands to draw to
         createGraphicsPipeline(); // Our graphics pipeline to ready to draw
@@ -333,6 +343,8 @@ void VulkanRenderitzar::cleanup() {
     // WE NEED TO WAIT UNTIL IT IS POSSIBLE TO CLEAN! JUST TO NOT HAVE PENDING
     vkDeviceWaitIdle(mainDevice.logicalDevice); // It is idle, there inothing pending in the logical device
 
+    firstMesh.destroyVertexBuffer();
+
     for (size_t i = 0; i < MAX_FRAME_DRAW; i++) {
         vkDestroySemaphore(mainDevice.logicalDevice, renderFinished[i], nullptr);
         vkDestroySemaphore(mainDevice.logicalDevice, imageAvailable[i], nullptr);
@@ -461,12 +473,33 @@ void VulkanRenderitzar::createGraphicsPipeline()
 
     VkPipelineShaderStageCreateInfo shaderStages[] = { vertexShaderCreateInfo, fragmentShaderCreateInfo };
 
+    // It is not an structure, it is data to make it easier to pass all as a whole (color, texture..etc)
+    VkVertexInputBindingDescription bindingDescription = {};
+    bindingDescription.binding = 0; // Can bind mulitple streams of data
+    bindingDescription.stride = sizeof(Vertex);
+    bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+
+    // How the dta for an attribute is defined withing a vertex
+    std::array<VkVertexInputAttributeDescription, 1> attributeDescription = {};
+
+
+    // The binding, is the default = 0, from the GLSLin the vertex shader
+    attributeDescription[0].binding = 0;
+    attributeDescription[0].location = 0; // Location in shader where the data will be read from the GLSL
+    attributeDescription[0].format = VK_FORMAT_R32G32B32_SFLOAT;
+    attributeDescription[0].offset = offsetof(Vertex, pos);     // Where is pos defined in the Vertex structure
+
+//    attributeDescription[0].binding = 0;
+//    attributeDescription[0].location = 1; // Location in shader where the data will be read from the GLSL
+//    attributeDescription[0].format = VK_FORMAT_R32G32B32_SFLOAT;
+//    attributeDescription[0].offset = offsetof(Vertex, color);     // Where is color defined in the Vertex structure
+
     VkPipelineVertexInputStateCreateInfo vertexInputCreateInfo = {};
     vertexInputCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
     vertexInputCreateInfo.vertexBindingDescriptionCount = 0;
-    vertexInputCreateInfo.pVertexBindingDescriptions = nullptr;
-    vertexInputCreateInfo.vertexAttributeDescriptionCount = 0;
-    vertexInputCreateInfo.pVertexAttributeDescriptions = nullptr;
+    vertexInputCreateInfo.pVertexBindingDescriptions = &bindingDescription;
+    vertexInputCreateInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescription.size());
+    vertexInputCreateInfo.pVertexAttributeDescriptions = attributeDescription.data();
 
 
     // INPUT ASSEMBLY

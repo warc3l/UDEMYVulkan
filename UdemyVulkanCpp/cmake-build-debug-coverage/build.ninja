@@ -63,6 +63,13 @@ build CMakeFiles/UdemyVulkanCpp.dir/VulkanRenderitzar.cpp.o: CXX_COMPILER__Udemy
   OBJECT_DIR = CMakeFiles/UdemyVulkanCpp.dir
   OBJECT_FILE_DIR = CMakeFiles/UdemyVulkanCpp.dir
 
+build CMakeFiles/UdemyVulkanCpp.dir/Mesh.cpp.o: CXX_COMPILER__UdemyVulkanCpp_unscanned_Debug /Users/marcelvilaltaisoler/Projects/UDEMY/UDEMYVulkan/UdemyVulkanCpp/Mesh.cpp || cmake_object_order_depends_target_UdemyVulkanCpp
+  DEP_FILE = CMakeFiles/UdemyVulkanCpp.dir/Mesh.cpp.o.d
+  FLAGS = -fcoverage-mapping -fprofile-instr-generate -g -std=gnu++17 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.4.sdk -fcolor-diagnostics
+  INCLUDES = -I/Users/marcelvilaltaisoler/Projects/UDEMY/UDEMYVulkan/UdemyVulkanCpp/externals/GLFW/include -I/Users/marcelvilaltaisoler/Projects/UDEMY/UDEMYVulkan/UdemyVulkanCpp/externals/glm-0.9.9.8 -isystem /usr/local/include
+  OBJECT_DIR = CMakeFiles/UdemyVulkanCpp.dir
+  OBJECT_FILE_DIR = CMakeFiles/UdemyVulkanCpp.dir
+
 
 # =============================================================================
 # Link build statements for EXECUTABLE target UdemyVulkanCpp
@@ -71,7 +78,7 @@ build CMakeFiles/UdemyVulkanCpp.dir/VulkanRenderitzar.cpp.o: CXX_COMPILER__Udemy
 #############################################
 # Link the executable UdemyVulkanCpp
 
-build UdemyVulkanCpp: CXX_EXECUTABLE_LINKER__UdemyVulkanCpp_Debug CMakeFiles/UdemyVulkanCpp.dir/main.cpp.o CMakeFiles/UdemyVulkanCpp.dir/VulkanRenderitzar.cpp.o | /usr/local/lib/libvulkan.dylib
+build UdemyVulkanCpp: CXX_EXECUTABLE_LINKER__UdemyVulkanCpp_Debug CMakeFiles/UdemyVulkanCpp.dir/main.cpp.o CMakeFiles/UdemyVulkanCpp.dir/VulkanRenderitzar.cpp.o CMakeFiles/UdemyVulkanCpp.dir/Mesh.cpp.o | /usr/local/lib/libvulkan.dylib
   FLAGS = -fcoverage-mapping -fprofile-instr-generate -g -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.4.sdk
   LINK_LIBRARIES = -Wl,-rpath,/Users/marcelvilaltaisoler/Projects/UDEMY/UDEMYVulkan/UdemyVulkanCpp/externals/GLFW/lib-universal -Wl,-rpath,/usr/local/lib  /usr/local/lib/libvulkan.dylib  -lGLFW
   LINK_PATH = -L/Users/marcelvilaltaisoler/Projects/UDEMY/UDEMYVulkan/UdemyVulkanCpp/externals/GLFW/lib-universal
