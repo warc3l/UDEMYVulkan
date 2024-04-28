@@ -310,6 +310,9 @@ void VulkanRenderitzar::createCommandPool() {
 
 void VulkanRenderitzar::cleanup() {
 
+    // WE NEED TO WAIT UNTIL IT IS POSSIBLE TO CLEAN! JUST TO NOT HAVE PENDING
+    vkDeviceWaitIdle(mainDevice.logicalDevice); // It is idle, there inothing pending in the logical device
+
     vkDestroySemaphore(mainDevice.logicalDevice, renderFinished, nullptr);
     vkDestroySemaphore(mainDevice.logicalDevice, imageAvailable, nullptr);
 
