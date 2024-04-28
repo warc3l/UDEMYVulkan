@@ -198,9 +198,12 @@ void VulkanRenderitzar::recordCommands() {
                     // Interesting for Deferred shading
                     // vkCmdBindPipeline(kdsfsd, ... );
 
+                    VkBuffer vertexBuffer[] = { firstMesh.getVertexBuffer() };
+                    VkDeviceSize offsets[] = { 0 };
+                    vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertexBuffer, offsets);
                     // Now we need to execute something, how many vertices, the instances.
                     // we can draw the objects instances, by a single draw call if the instance is loaded
-                    vkCmdDraw(commandBuffers[i], 3, 1, 0, 0);
+                    vkCmdDraw(commandBuffers[i], static_cast<uint32_t>(firstMesh.getVertexCount()), 1, 0, 0);
 
 
                     // FOR ANOTHER OBJECT, is vkCmdDraw, another
@@ -480,7 +483,7 @@ void VulkanRenderitzar::createGraphicsPipeline()
     bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
 
     // How the dta for an attribute is defined withing a vertex
-    std::array<VkVertexInputAttributeDescription, 1> attributeDescription = {};
+    std::array<VkVertexInputAttributeDescription, 1> attributeDescription;
 
 
     // The binding, is the default = 0, from the GLSLin the vertex shader
@@ -496,7 +499,7 @@ void VulkanRenderitzar::createGraphicsPipeline()
 
     VkPipelineVertexInputStateCreateInfo vertexInputCreateInfo = {};
     vertexInputCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-    vertexInputCreateInfo.vertexBindingDescriptionCount = 0;
+    vertexInputCreateInfo.vertexBindingDescriptionCount = 1;
     vertexInputCreateInfo.pVertexBindingDescriptions = &bindingDescription;
     vertexInputCreateInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescription.size());
     vertexInputCreateInfo.pVertexAttributeDescriptions = attributeDescription.data();

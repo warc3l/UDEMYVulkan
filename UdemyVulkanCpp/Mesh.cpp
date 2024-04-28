@@ -13,9 +13,10 @@ Mesh::~Mesh() {
 }
 
 Mesh::Mesh(VkPhysicalDevice physicalDevice, VkDevice newDevice, std::vector<Vertex>* vertices) {
+    vertexCount = vertices->size();
     this->physicalDevice = physicalDevice;
     this->device = newDevice;
-    this->vertexBuffer = createVertexBuffer(vertices);
+    createVertexBuffer(vertices);
 }
 
 
@@ -24,7 +25,7 @@ void Mesh::destroyVertexBuffer() {
     vkFreeMemory(device, vertexBufferMemory, nullptr); // Yoou are not using anymore, you are permitted to use it again
 }
 
-VkBuffer Mesh::createVertexBuffer(std::vector<Vertex>* vertices) {
+void Mesh::createVertexBuffer(std::vector<Vertex>* vertices) {
     VkBufferCreateInfo bufferInfo = {};
     bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
     bufferInfo.size = sizeof(Vertex) * vertices->size();
@@ -78,4 +79,5 @@ uint32_t Mesh::findMemoryTypeIndex(uint32_t allowedTypes, VkMemoryPropertyFlags 
         }
     }
 
+    return 0;
 }
