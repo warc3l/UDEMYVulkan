@@ -150,7 +150,7 @@ void VulkanRenderitzar::recordCommands() {
 
     VkCommandBufferBeginInfo bufferBeginInfo = {};
     bufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-    bufferBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT; // If one command is already in the queue, we can re-submit the same to the queue
+    // bufferBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT; // If one command is already in the queue, we can re-submit the same to the queue
 
     // Information about how to begin a render pass, only for graphical applications
     VkRenderPassBeginInfo renderPassBeginInfo = {};
@@ -216,17 +216,23 @@ void VulkanRenderitzar::createSynchronization() {
 
     imageAvailable.resize(MAX_FRAME_DRAW);
     renderFinished.resize(MAX_FRAME_DRAW);
+    drawFences.resize(MAX_FRAME_DRAW);
 
     // Semaphosre creation information
     VkSemaphoreCreateInfo semaphoreCreateInfo = {};
     semaphoreCreateInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
 
+    // Fence creation information
+    VkFenceCreateInfo fenceCreateInfo = {};
+    fenceCreateInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+    fenceCreateInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
     for (size_t i = 0; i < MAX_FRAME_DRAW; i++) {
         if ( vkCreateSemaphore(mainDevice.logicalDevice, &semaphoreCreateInfo, nullptr, &imageAvailable[i]) != VK_SUCCESS ||
-                vkCreateSemaphore(mainDevice.logicalDevice, &semaphoreCreateInfo, nullptr, &renderFinished[i]) != VK_SUCCESS
+                vkCreateSemaphore(mainDevice.logicalDevice, &semaphoreCreateInfo, nullptr, &renderFinished[i]) != VK_SUCCESS ||
+                vkCreateFence(mainDevice.logicalDevice, &fenceCreateInfo, nullptr, &drawFences[i]) != VK_SUCCESS
         ) {
-            throw std::runtime_error("Failed to create the semaphore!!" );
+            throw std::runtime_error("Failed to create the semaphore and/or fence!!" );
         }
     }
 
@@ -234,9 +240,16 @@ void VulkanRenderitzar::createSynchronization() {
 }
 
 void VulkanRenderitzar::draw() {
+
+    // We need to start the fence "signaling"
+    // Wait for given fence to signal open from last draw before contiuing
+    vkWaitForFences(mainDevice.logicalDevice, 1, &drawFences[currentFrame], VK_TRUE, std::numeric_limits<uint64_t>::max());
+    vkResetFences(mainDevice.logicalDevice, 1, &drawFences[currentFrame]); // You are closing the next fence so the previous one can go through.
+
     // 1. Get next available image to draw and set something to signal when we are finished with this image
     uint32_t imageIndex;
     vkAcquireNextImageKHR(mainDevice.logicalDevice, swapChain, std::numeric_limits<uint64_t>::max(), imageAvailable[currentFrame],  VK_NULL_HANDLE, &imageIndex);
+
 
     // 2. Submit the command buffer - we need to make sure the semaphores are per each, not by one all.
     // we need to hold and slow down.
@@ -256,7 +269,7 @@ void VulkanRenderitzar::draw() {
     submitInfo.signalSemaphoreCount = 1;
     submitInfo.pSignalSemaphores = &renderFinished[currentFrame];
 
-    VkResult result = vkQueueSubmit(graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
+    VkResult result = vkQueueSubmit(graphicsQueue, 1, &submitInfo, drawFences[currentFrame]);
     if (result != VK_SUCCESS) {
         throw std::runtime_error("Cannot submit the command buffer to the queue due to " + std::to_string(result));
     }
@@ -323,6 +336,7 @@ void VulkanRenderitzar::cleanup() {
     for (size_t i = 0; i < MAX_FRAME_DRAW; i++) {
         vkDestroySemaphore(mainDevice.logicalDevice, renderFinished[i], nullptr);
         vkDestroySemaphore(mainDevice.logicalDevice, imageAvailable[i], nullptr);
+        vkDestroyFence(mainDevice.logicalDevice, drawFences[i], nullptr);
     }
     vkDestroyCommandPool(mainDevice.logicalDevice, graphicsCommandPool, nullptr);
 

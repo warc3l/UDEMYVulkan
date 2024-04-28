@@ -65,7 +65,7 @@ private:
     // We need two signals,
     std::vector<VkSemaphore> imageAvailable;
     std::vector<VkSemaphore> renderFinished;
-
+    std::vector<VkFence> drawFences;
 
     void crearInstancia();
     void getPhysicalDevice();
