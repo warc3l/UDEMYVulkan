@@ -8,6 +8,7 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 #include <vulkan/vulkan_beta.h>
+#include <glm/gtc/matrix_transform.hpp>
 
 #include <set>
 #include <stdexcept>
@@ -39,6 +40,14 @@ private:
     // Scene objects
     std::vector<Mesh> meshList;
 
+    // Scene Settings
+    struct MVP {
+        glm::mat4 projection;
+        glm::mat4 view;
+        glm::mat4 model;
+    } mvp;
+
+
     VkInstance instance; // Vulkan Starts with Vk. Vulkan Type. It is just a typedef
     struct {
         VkPhysicalDevice physicalDevice;
@@ -58,6 +67,14 @@ private:
     const std::vector<const char*> validationLayers = {
             "VK_LAYER_KHRONOS_validation"
     };
+
+    VkDescriptorSetLayout descriptorSetLayout;
+    VkDescriptorPool descriptorPool;
+    std::vector<VkDescriptorSet> descriptorSets;
+
+    std::vector<VkBuffer> uniformBuffer;
+    std::vector<VkDeviceMemory> uniformBufferMemory;
+
 
     // Pipeline, can do
     VkPipeline graphicsPipeline;
@@ -82,6 +99,11 @@ private:
     void createCommandPool();
     void createCommandBuffers();
     void createSynchronization();
+    void createDescriptorSetLayout();
+    void createUniformBuffers();
+    void createDescriptorPool();
+    void createDescriptorSets();
+    void updateUniformBuffer(uint32_t imageIndex);
 
     void recordCommands();
 
