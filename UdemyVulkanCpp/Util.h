@@ -8,6 +8,8 @@
 #include <fstream>
 #include <vulkan/vulkan_beta.h>
 
+const int MAX_FRAME_DRAW = 2;
+
 const std::vector<const char *> deviceExtensions = {
         VK_KHR_SWAPCHAIN_EXTENSION_NAME,
         VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME

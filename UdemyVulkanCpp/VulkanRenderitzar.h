@@ -31,6 +31,8 @@ public:
     ~VulkanRenderitzar();
 
 private:
+    int currentFrame = 0;
+
     GLFWwindow* window;
 
     VkInstance instance; // Vulkan Starts with Vk. Vulkan Type. It is just a typedef
@@ -61,8 +63,8 @@ private:
     VkCommandPool graphicsCommandPool; // A pool, similar in Metal
 
     // We need two signals,
-    VkSemaphore imageAvailable;
-    VkSemaphore renderFinished;
+    std::vector<VkSemaphore> imageAvailable;
+    std::vector<VkSemaphore> renderFinished;
 
 
     void crearInstancia();
