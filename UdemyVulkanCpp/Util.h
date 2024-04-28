@@ -5,6 +5,7 @@
 #ifndef UDEMYVULKANCPP_UTIL_H
 #define UDEMYVULKANCPP_UTIL_H
 
+#define GLFW_INCLUDE_VULKAN
 #include <fstream>
 #include <vulkan/vulkan_beta.h>
 #include <GLM/glm.hpp>
@@ -66,6 +67,57 @@ static std::vector<char> readFile(const std::string& filename)
 
     return fileBuffer;
 }
+
+static uint32_t findMemoryTypeIndex(VkPhysicalDevice physicalDevice, uint32_t allowedTypes, VkMemoryPropertyFlags properties)
+{
+    VkPhysicalDeviceMemoryProperties memoryProperties;
+    vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memoryProperties);
+
+    for (uint32_t i = 0; i < memoryProperties.memoryTypeCount; i++) {
+        if ((allowedTypes & (1 << i)) && (memoryProperties.memoryTypes[i].propertyFlags & properties) == properties) {
+            return i; // Memory type valid, return index
+        }
+    }
+
+    return 0;
+}
+
+static void createBuffer(VkPhysicalDevice physicalDevice, VkDevice device, VkDeviceSize bufferSize, VkBufferUsageFlags bufferUsageFlags, VkMemoryPropertyFlags bufferProperties, VkBuffer* buffer, VkDeviceMemory* bufferMemory) {
+    VkBufferCreateInfo bufferInfo = {};
+    bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+    bufferInfo.size = bufferSize;
+    bufferInfo.usage = bufferUsageFlags;
+    bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+    VkResult result = vkCreateBuffer(device, &bufferInfo, nullptr, buffer);
+    if (result != VK_SUCCESS) {
+        throw std::runtime_error("Error to create a buffer " + std::to_string(result));
+    }
+
+    VkMemoryRequirements memoryRequirements;
+    vkGetBufferMemoryRequirements(device, *buffer, &memoryRequirements);
+
+    // ALLOCATE MEMORY TO BUFFER
+    VkMemoryAllocateInfo memoryAllocateInfo = {};
+    memoryAllocateInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+    memoryAllocateInfo.allocationSize = memoryRequirements.size;
+    memoryAllocateInfo.memoryTypeIndex = findMemoryTypeIndex(physicalDevice,
+                                                             memoryRequirements.memoryTypeBits,
+                                                             bufferProperties);
+
+    // Alocate to VkDeviceMemory
+    result = vkAllocateMemory(device, &memoryAllocateInfo, nullptr, bufferMemory);
+    if (result != VK_SUCCESS) {
+        throw std::runtime_error("Failed to allocate Vertex buffer memory");
+    }
+
+    // Allocate memory to vertex buffer
+    vkBindBufferMemory(device, *buffer, *bufferMemory, 0);
+
+
+
+}
+
 
 
 
