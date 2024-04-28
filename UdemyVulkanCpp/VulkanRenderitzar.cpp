@@ -29,14 +29,20 @@ int VulkanRenderitzar::init(GLFWwindow* newWindow) {
         createFramebuffers();
         createCommandPool();
 
+        // Vertex Data
         std::vector<Vertex> meshVertices = {
                 {{0.0, -0.4, 0.0}, {1.0f, 0.0f, 0.0f}},
                 {{0.4, 0.4, 0.0}, { 0.0, 1.0f, 0.0f}},
                 {{-0.4, 0.4, 0.0}, {0.0f, 0.0f, 1.0f}}
         };
 
+        // Index Data
+        std::vector<uint32_t> meshIndices = {
+                0, 1, 2
+        };
+
         // Graphics queue are also transfer queues
-        firstMesh = Mesh(mainDevice.physicalDevice, mainDevice.logicalDevice,  graphicsQueue, graphicsCommandPool, &meshVertices);
+        firstMesh = Mesh(mainDevice.physicalDevice, mainDevice.logicalDevice,  graphicsQueue, graphicsCommandPool, &meshVertices, &meshIndices);
 
         createCommandBuffers();
         recordCommands();
@@ -203,9 +209,18 @@ void VulkanRenderitzar::recordCommands() {
                     VkBuffer vertexBuffer[] = { firstMesh.getVertexBuffer() };
                     VkDeviceSize offsets[] = { 0 };
                     vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertexBuffer, offsets);
+
+                    vkCmdBindIndexBuffer(commandBuffers[i], firstMesh.getIndexBuffer(), 0, VK_INDEX_TYPE_UINT32 );
+
+
+
                     // Now we need to execute something, how many vertices, the instances.
                     // we can draw the objects instances, by a single draw call if the instance is loaded
-                    vkCmdDraw(commandBuffers[i], static_cast<uint32_t>(firstMesh.getVertexCount()), 1, 0, 0);
+
+
+                    // If we would liek to draw WITHOUT index:
+                    // vkCmdDraw(commandBuffers[i], static_cast<uint32_t>(firstMesh.getVertexCount()), 1, 0, 0);
+                    vkCmdDrawIndexed(commandBuffers[i], firstMesh.getIndicesCount(), 1, 0, 0, 0);
 
 
                     // FOR ANOTHER OBJECT, is vkCmdDraw, another
@@ -348,7 +363,7 @@ void VulkanRenderitzar::cleanup() {
     // WE NEED TO WAIT UNTIL IT IS POSSIBLE TO CLEAN! JUST TO NOT HAVE PENDING
     vkDeviceWaitIdle(mainDevice.logicalDevice); // It is idle, there inothing pending in the logical device
 
-    firstMesh.destroyVertexBuffer();
+    firstMesh.destroyBuffers();
 
     for (size_t i = 0; i < MAX_FRAME_DRAW; i++) {
         vkDestroySemaphore(mainDevice.logicalDevice, renderFinished[i], nullptr);

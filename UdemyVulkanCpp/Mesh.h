@@ -14,7 +14,8 @@ class Mesh {
 
 public:
     Mesh();
-    Mesh(VkPhysicalDevice physicalDevice, VkDevice newDevice, VkQueue transformQueue, VkCommandPool transferCommandPool, std::vector<Vertex>* vertices);
+    Mesh(VkPhysicalDevice physicalDevice, VkDevice newDevice, VkQueue transformQueue,
+         VkCommandPool transferCommandPool, std::vector<Vertex>* vertices, std::vector<uint32_t>* indices);
 
 
     VkBuffer getVertexBuffer() {
@@ -25,19 +26,33 @@ public:
         return vertexCount;
     }
 
-    void destroyVertexBuffer();
+    int getIndicesCount() {
+        return indexCount;
+    }
+
+    VkBuffer getIndexBuffer() {
+        return indexBuffer;
+    }
+
+    void destroyBuffers();
 
     ~Mesh();
 
 private:
+    int indexCount;
     int vertexCount;
     VkBuffer vertexBuffer;
     VkDeviceMemory vertexBufferMemory;
+
+    VkBuffer indexBuffer;
+    VkDeviceMemory indexBufferMemory;
 
     VkPhysicalDevice physicalDevice;
     VkDevice device;
 
     void createVertexBuffer(VkQueue transferQueue, VkCommandPool transferCommandPool, std::vector<Vertex>* vertices);
+    void createIndicesBuffer(VkQueue transferQueue, VkCommandPool transferCommandPool, std::vector<uint32_t>* indices);
+
 };
 
 
