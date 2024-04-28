@@ -43,6 +43,8 @@ private:
     VkFormat swapChainImageFormat;
     VkExtent2D swapChainExtent;
     std::vector<SwapChainImage> swapChainImages;
+    std::vector<VkFramebuffer> swapChainFrameBuffers;
+    std::vector<VkCommandBuffer> commandBuffers;
 
     const std::vector<const char*> validationLayers = {
             "VK_LAYER_KHRONOS_validation"
@@ -53,7 +55,7 @@ private:
     VkPipelineLayout pipelineLayout;
     VkRenderPass renderPass;
 
-
+    VkCommandPool graphicsCommandPool; // A pool, similar in Metal
 
     void crearInstancia();
     void getPhysicalDevice();
@@ -62,6 +64,11 @@ private:
     void createSwapChain();
     void createRenderPass();
     void createGraphicsPipeline();
+    void createFramebuffers();
+    void createCommandPool();
+    void createCommandBuffers();
+
+    void recordCommands();
 
     // Not from the Udemy course, but from
     // https://vulkan-tutorial.com/Drawing_a_triangle/Setup/Validation_layers
