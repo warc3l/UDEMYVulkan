@@ -37,7 +37,7 @@ private:
     GLFWwindow* window;
 
     // Scene objects
-    Mesh firstMesh;
+    std::vector<Mesh> meshList;
 
     VkInstance instance; // Vulkan Starts with Vk. Vulkan Type. It is just a typedef
     struct {

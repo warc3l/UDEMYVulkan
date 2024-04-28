@@ -41,8 +41,24 @@ int VulkanRenderitzar::init(GLFWwindow* newWindow) {
                 0, 1, 2
         };
 
+        std::vector<Vertex> secondVertices = {
+                {{-0.1, -0.4, 0.0}, {1.0f, 0.0f, 0.0f}},
+                {{-0.1, 0.4, 0.0}, { 0.0, 1.0f, 0.0f}},
+               {{-0.9, 0.4, 0.0}, {0.0f, 0.0f, 1.0f}},
+                {{-0.9, -0.4, 0.0}, {1.0f, 1.0f, 1.0f}},
+        };
+
+        // Index Data
+        std::vector<uint32_t> secondMeshIndices = {
+                0, 1, 2,
+                2, 3, 0
+        };
+
         // Graphics queue are also transfer queues
-        firstMesh = Mesh(mainDevice.physicalDevice, mainDevice.logicalDevice,  graphicsQueue, graphicsCommandPool, &meshVertices, &meshIndices);
+        Mesh firstMesh = Mesh(mainDevice.physicalDevice, mainDevice.logicalDevice,  graphicsQueue, graphicsCommandPool, &meshVertices, &meshIndices);
+        Mesh secondMesh =  Mesh(mainDevice.physicalDevice, mainDevice.logicalDevice,  graphicsQueue, graphicsCommandPool, &secondVertices, &secondMeshIndices);
+        meshList.push_back(firstMesh);
+        meshList.push_back(secondMesh);
 
         createCommandBuffers();
         recordCommands();
@@ -206,12 +222,12 @@ void VulkanRenderitzar::recordCommands() {
                     // Interesting for Deferred shading
                     // vkCmdBindPipeline(kdsfsd, ... );
 
-                    VkBuffer vertexBuffer[] = { firstMesh.getVertexBuffer() };
-                    VkDeviceSize offsets[] = { 0 };
-                    vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertexBuffer, offsets);
+                    for (size_t j = 0; j < meshList.size(); j++) {
+                        VkBuffer vertexBuffer[] = { meshList[j].getVertexBuffer() };
+                        VkDeviceSize offsets[] = { 0 };
+                        vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertexBuffer, offsets);
 
-                    vkCmdBindIndexBuffer(commandBuffers[i], firstMesh.getIndexBuffer(), 0, VK_INDEX_TYPE_UINT32 );
-
+                        vkCmdBindIndexBuffer(commandBuffers[i], meshList[j].getIndexBuffer(), 0, VK_INDEX_TYPE_UINT32 );
 
 
                     // Now we need to execute something, how many vertices, the instances.
@@ -220,8 +236,9 @@ void VulkanRenderitzar::recordCommands() {
 
                     // If we would liek to draw WITHOUT index:
                     // vkCmdDraw(commandBuffers[i], static_cast<uint32_t>(firstMesh.getVertexCount()), 1, 0, 0);
-                    vkCmdDrawIndexed(commandBuffers[i], firstMesh.getIndicesCount(), 1, 0, 0, 0);
+                    vkCmdDrawIndexed(commandBuffers[i], meshList[j].getIndicesCount(), 1, 0, 0, 0);
 
+                    }
 
                     // FOR ANOTHER OBJECT, is vkCmdDraw, another
                     // What happens for dynamic?  you would need to "re-record" the whole function, and make sure that are not
@@ -363,7 +380,9 @@ void VulkanRenderitzar::cleanup() {
     // WE NEED TO WAIT UNTIL IT IS POSSIBLE TO CLEAN! JUST TO NOT HAVE PENDING
     vkDeviceWaitIdle(mainDevice.logicalDevice); // It is idle, there inothing pending in the logical device
 
-    firstMesh.destroyBuffers();
+    for(size_t i = 0; i < meshList.size(); i++) {
+        meshList[i].destroyBuffers();
+    }
 
     for (size_t i = 0; i < MAX_FRAME_DRAW; i++) {
         vkDestroySemaphore(mainDevice.logicalDevice, renderFinished[i], nullptr);
