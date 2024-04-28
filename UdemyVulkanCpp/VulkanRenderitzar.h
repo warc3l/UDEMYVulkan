@@ -23,6 +23,9 @@ public:
     VulkanRenderitzar();
 
     int init(GLFWwindow* newWindow);
+
+    void draw();
+
     void cleanup();
 
     ~VulkanRenderitzar();
@@ -57,6 +60,11 @@ private:
 
     VkCommandPool graphicsCommandPool; // A pool, similar in Metal
 
+    // We need two signals,
+    VkSemaphore imageAvailable;
+    VkSemaphore renderFinished;
+
+
     void crearInstancia();
     void getPhysicalDevice();
     void createLogicalDevice();
@@ -67,8 +75,10 @@ private:
     void createFramebuffers();
     void createCommandPool();
     void createCommandBuffers();
+    void createSynchronization();
 
     void recordCommands();
+
 
     // Not from the Udemy course, but from
     // https://vulkan-tutorial.com/Drawing_a_triangle/Setup/Validation_layers
