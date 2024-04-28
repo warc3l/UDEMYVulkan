@@ -17,14 +17,6 @@ int VulkanRenderitzar::init(GLFWwindow* newWindow) {
         getPhysicalDevice(); // Both checks depending on the surface.
         createLogicalDevice(); // We have the device to draw to
 
-        std::vector<Vertex> meshVertices = {
-                {{0.0, -0.4, 0.0}, {1.0f, 0.0f, 0.0f}},
-                {{0.4, 0.4, 0.0}, { 0.0, 1.0f, 0.0f}},
-                {{-0.4, 0.4, 0.0}, {0.0f, 0.0f, 1.0f}}
-        };
-
-        firstMesh = Mesh(mainDevice.physicalDevice, mainDevice.logicalDevice, &meshVertices);
-
 
         createSwapChain(); // We can have access to the images which we can keep switching out to the screen
         createRenderPass(); // We have something commands to draw to
@@ -36,6 +28,16 @@ int VulkanRenderitzar::init(GLFWwindow* newWindow) {
 
         createFramebuffers();
         createCommandPool();
+
+        std::vector<Vertex> meshVertices = {
+                {{0.0, -0.4, 0.0}, {1.0f, 0.0f, 0.0f}},
+                {{0.4, 0.4, 0.0}, { 0.0, 1.0f, 0.0f}},
+                {{-0.4, 0.4, 0.0}, {0.0f, 0.0f, 1.0f}}
+        };
+
+        // Graphics queue are also transfer queues
+        firstMesh = Mesh(mainDevice.physicalDevice, mainDevice.logicalDevice,  graphicsQueue, graphicsCommandPool, &meshVertices);
+
         createCommandBuffers();
         recordCommands();
         createSynchronization();
