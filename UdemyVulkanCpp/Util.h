@@ -19,6 +19,7 @@ const std::vector<const char *> deviceExtensions = {
 
 struct Vertex {
     glm::vec3 pos;
+    glm::vec3 col;
 };
 
 

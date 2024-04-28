@@ -18,9 +18,9 @@ int VulkanRenderitzar::init(GLFWwindow* newWindow) {
         createLogicalDevice(); // We have the device to draw to
 
         std::vector<Vertex> meshVertices = {
-                {{0.0, -0.4, 0.0}},
-                {{0.4, 0.4, 0.0}},
-                {{-0.4, 0.4, 0.0}},
+                {{0.0, -0.4, 0.0}, {1.0f, 0.0f, 0.0f}},
+                {{0.4, 0.4, 0.0}, { 0.0, 1.0f, 0.0f}},
+                {{-0.4, 0.4, 0.0}, {0.0f, 0.0f, 1.0f}}
         };
 
         firstMesh = Mesh(mainDevice.physicalDevice, mainDevice.logicalDevice, &meshVertices);
@@ -483,7 +483,7 @@ void VulkanRenderitzar::createGraphicsPipeline()
     bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
 
     // How the dta for an attribute is defined withing a vertex
-    std::array<VkVertexInputAttributeDescription, 1> attributeDescription;
+    std::array<VkVertexInputAttributeDescription, 2> attributeDescription;
 
 
     // The binding, is the default = 0, from the GLSLin the vertex shader
@@ -492,10 +492,10 @@ void VulkanRenderitzar::createGraphicsPipeline()
     attributeDescription[0].format = VK_FORMAT_R32G32B32_SFLOAT;
     attributeDescription[0].offset = offsetof(Vertex, pos);     // Where is pos defined in the Vertex structure
 
-//    attributeDescription[0].binding = 0;
-//    attributeDescription[0].location = 1; // Location in shader where the data will be read from the GLSL
-//    attributeDescription[0].format = VK_FORMAT_R32G32B32_SFLOAT;
-//    attributeDescription[0].offset = offsetof(Vertex, color);     // Where is color defined in the Vertex structure
+    attributeDescription[1].binding = 0;
+    attributeDescription[1].location = 1; // Location in shader where the data will be read from the GLSL
+    attributeDescription[1].format = VK_FORMAT_R32G32B32_SFLOAT;
+    attributeDescription[1].offset = offsetof(Vertex, col);     // Where is color defined in the Vertex structure
 
     VkPipelineVertexInputStateCreateInfo vertexInputCreateInfo = {};
     vertexInputCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
