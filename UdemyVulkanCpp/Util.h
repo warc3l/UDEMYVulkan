@@ -12,11 +12,13 @@
 #include <vector>
 
 const int MAX_FRAME_DRAW = 2;
+const int MAX_OBJECTS = 2;
 
 const std::vector<const char *> deviceExtensions = {
         VK_KHR_SWAPCHAIN_EXTENSION_NAME,
         VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME
 };
+
 
 struct Vertex {
     glm::vec3 pos;

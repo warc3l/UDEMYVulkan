@@ -266,13 +266,13 @@ Putting it together</h1>
 <div class="line"> </div>
 <div class="line"><span class="keyword">static</span> <span class="keyword">const</span> <span class="keywordtype">char</span>* vertex_shader_text =</div>
 <div class="line"><span class="stringliteral">&quot;#version 330\n&quot;</span></div>
-<div class="line"><span class="stringliteral">&quot;uniform mat4 MVP;\n&quot;</span></div>
+<div class="line"><span class="stringliteral">&quot;uniform mat4 UboViewProjection;\n&quot;</span></div>
 <div class="line"><span class="stringliteral">&quot;in vec3 vCol;\n&quot;</span></div>
 <div class="line"><span class="stringliteral">&quot;in vec2 vPos;\n&quot;</span></div>
 <div class="line"><span class="stringliteral">&quot;out vec3 color;\n&quot;</span></div>
 <div class="line"><span class="stringliteral">&quot;void main()\n&quot;</span></div>
 <div class="line"><span class="stringliteral">&quot;{\n&quot;</span></div>
-<div class="line"><span class="stringliteral">&quot;    gl_Position = MVP * vec4(vPos, 0.0, 1.0);\n&quot;</span></div>
+<div class="line"><span class="stringliteral">&quot;    gl_Position = UboViewProjection * vec4(vPos, 0.0, 1.0);\n&quot;</span></div>
 <div class="line"><span class="stringliteral">&quot;    color = vCol;\n&quot;</span></div>
 <div class="line"><span class="stringliteral">&quot;}\n&quot;</span>;</div>
 <div class="line"> </div>
@@ -340,7 +340,7 @@ Putting it together</h1>
 <div class="line">    glAttachShader(program, fragment_shader);</div>
 <div class="line">    glLinkProgram(program);</div>
 <div class="line"> </div>
-<div class="line">    <span class="keyword">const</span> GLint mvp_location = glGetUniformLocation(program, <span class="stringliteral">&quot;MVP&quot;</span>);</div>
+<div class="line">    <span class="keyword">const</span> GLint mvp_location = glGetUniformLocation(program, <span class="stringliteral">&quot;UboViewProjection&quot;</span>);</div>
 <div class="line">    <span class="keyword">const</span> GLint vpos_location = glGetAttribLocation(program, <span class="stringliteral">&quot;vPos&quot;</span>);</div>
 <div class="line">    <span class="keyword">const</span> GLint vcol_location = glGetAttribLocation(program, <span class="stringliteral">&quot;vCol&quot;</span>);</div>
 <div class="line"> </div>
@@ -363,14 +363,14 @@ Putting it together</h1>
 <div class="line">        glViewport(0, 0, width, height);</div>
 <div class="line">        glClear(GL_COLOR_BUFFER_BIT);</div>
 <div class="line"> </div>
-<div class="line">        mat4x4 m, p, mvp;</div>
+<div class="line">        mat4x4 m, p, uboViewProjection;</div>
 <div class="line">        mat4x4_identity(m);</div>
 <div class="line">        mat4x4_rotate_Z(m, m, (<span class="keywordtype">float</span>) <a class="code hl_function" href="group__input.html#gaa6cf4e7a77158a3b8fd00328b1720a4a">glfwGetTime</a>());</div>
 <div class="line">        mat4x4_ortho(p, -ratio, ratio, -1.f, 1.f, 1.f, -1.f);</div>
-<div class="line">        mat4x4_mul(mvp, p, m);</div>
+<div class="line">        mat4x4_mul(uboViewProjection, p, m);</div>
 <div class="line"> </div>
 <div class="line">        glUseProgram(program);</div>
-<div class="line">        glUniformMatrix4fv(mvp_location, 1, GL_FALSE, (<span class="keyword">const</span> GLfloat*) &amp;mvp);</div>
+<div class="line">        glUniformMatrix4fv(mvp_location, 1, GL_FALSE, (<span class="keyword">const</span> GLfloat*) &amp;uboViewProjection);</div>
 <div class="line">        glBindVertexArray(vertex_array);</div>
 <div class="line">        glDrawArrays(GL_TRIANGLES, 0, 3);</div>
 <div class="line"> </div>

@@ -16,7 +16,6 @@
 #include <algorithm>
 #include <array>
 #include <iostream>
-#include "Util.h"
 #include "Mesh.h"
 
 class VulkanRenderitzar {
@@ -29,7 +28,7 @@ public:
     void draw();
 
     void cleanup();
-    void updateModel(glm::mat4 newModel);
+    void updateModel(int modelId, glm::mat4 newModel);
 
     ~VulkanRenderitzar();
 
@@ -42,11 +41,10 @@ private:
     std::vector<Mesh> meshList;
 
     // Scene Settings
-    struct MVP {
+    struct UboViewProjection {
         glm::mat4 projection;
         glm::mat4 view;
-        glm::mat4 model;
-    } mvp;
+    } uboViewProjection;
 
 
     VkInstance instance; // Vulkan Starts with Vk. Vulkan Type. It is just a typedef
@@ -73,9 +71,15 @@ private:
     VkDescriptorPool descriptorPool;
     std::vector<VkDescriptorSet> descriptorSets;
 
-    std::vector<VkBuffer> uniformBuffer;
-    std::vector<VkDeviceMemory> uniformBufferMemory;
+    std::vector<VkBuffer> vpUniformBuffer;
+    std::vector<VkDeviceMemory> vpUniformBufferMemory;
 
+    std::vector<VkBuffer> mDUniformBuffer;
+    std::vector<VkDeviceMemory> mDUniformBufferMemory;
+
+    VkDeviceSize minUniformBufferOffset;
+    size_t modelUniformAlignment;
+    UboModel* modelTransferSpace;
 
     // Pipeline, can do
     VkPipeline graphicsPipeline;
@@ -104,7 +108,7 @@ private:
     void createUniformBuffers();
     void createDescriptorPool();
     void createDescriptorSets();
-    void updateUniformBuffer(uint32_t imageIndex);
+    void updateUniformBuffers(uint32_t imageIndex);
 
     void recordCommands();
 
@@ -119,6 +123,8 @@ private:
     bool checkDeviceExtensionSupport(VkPhysicalDevice device);
     bool checkInstanceExtensionSupport(std::vector<const char*>* checkExtensions);
     bool checkDeviceSuitable(VkPhysicalDevice device);
+
+    void allocateDynamicBufferTransferSpace();
 
 
     // Extra based on that:
