@@ -187,6 +187,10 @@ void VulkanRenderitzar::createRenderPass() {
 
 }
 
+void VulkanRenderitzar::updateModel(glm::mat4 newModel) {
+    mvp.model = newModel;
+}
+
 void VulkanRenderitzar::updateUniformBuffer(uint32_t imageIndex) {
 //    for (size_t i = 0; i < uniformBufferMemory.size(); i++) {
     void *data;

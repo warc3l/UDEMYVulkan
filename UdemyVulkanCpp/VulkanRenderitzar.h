@@ -29,6 +29,7 @@ public:
     void draw();
 
     void cleanup();
+    void updateModel(glm::mat4 newModel);
 
     ~VulkanRenderitzar();
 
