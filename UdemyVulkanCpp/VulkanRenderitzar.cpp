@@ -211,7 +211,7 @@ void VulkanRenderitzar::updateUniformBuffers(uint32_t imageIndex) {
     }
 
     vkMapMemory(mainDevice.logicalDevice, mDUniformBufferMemory[imageIndex], 0, modelUniformAlignment * meshList.size(), 0, &data);
-    memcpy(data, &modelTransferSpace, modelUniformAlignment * meshList.size());
+    memcpy(data, modelTransferSpace, modelUniformAlignment * meshList.size());
     vkUnmapMemory(mainDevice.logicalDevice, mDUniformBufferMemory[imageIndex]);
 }
 
