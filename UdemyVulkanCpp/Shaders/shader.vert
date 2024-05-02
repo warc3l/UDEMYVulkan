@@ -14,8 +14,12 @@ layout(binding = 1) uniform UboModel {
     mat4 model;
 } uboModel;
 
+layout(push_constant) uniform PushModel {
+    mat4 model;
+} pushModel;
+
 void main() {
-	gl_Position = uboViewProjection.projection * uboViewProjection.view * uboModel.model * vec4(pos, 1.0);
+	gl_Position = uboViewProjection.projection * uboViewProjection.view * pushModel.model * vec4(pos, 1.0);
 
 	fragColor = col;
 }

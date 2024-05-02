@@ -13,7 +13,7 @@ Mesh::~Mesh() {
 }
 
 
-UboModel Mesh::getModel() {
+UboModel& Mesh::getModel() {
     return uboModel;
 }
 

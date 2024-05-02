@@ -25,7 +25,7 @@ public:
          VkCommandPool transferCommandPool, std::vector<Vertex>* vertices, std::vector<uint32_t>* indices);
 
     void setModel(glm::mat4 model);
-    UboModel getModel();
+    UboModel& getModel();
 
     VkBuffer getVertexBuffer() {
         return vertexBuffer;

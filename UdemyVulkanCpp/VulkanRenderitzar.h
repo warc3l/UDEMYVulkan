@@ -85,6 +85,7 @@ private:
     VkPipeline graphicsPipeline;
     VkPipelineLayout pipelineLayout;
     VkRenderPass renderPass;
+    VkPushConstantRange pushConstantRange;
 
     VkCommandPool graphicsCommandPool; // A pool, similar in Metal
 
@@ -108,9 +109,10 @@ private:
     void createUniformBuffers();
     void createDescriptorPool();
     void createDescriptorSets();
+    void createPushConstantRange();
     void updateUniformBuffers(uint32_t imageIndex);
 
-    void recordCommands();
+    void recordCommands(uint32_t currentImage);
 
 
     // Not from the Udemy course, but from
