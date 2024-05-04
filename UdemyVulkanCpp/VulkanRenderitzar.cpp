@@ -30,6 +30,8 @@ int VulkanRenderitzar::init(GLFWwindow* newWindow) {
         createFramebuffers();
         createCommandPool();
 
+        int firstTexture = createTexture("giraffe.jpg");
+
         uboViewProjection.projection = glm::perspective(glm::radians(45.0f), (float) swapChainExtent.width / (float) swapChainExtent.height, 0.1f, 100.0f );
         uboViewProjection.view = glm::lookAt(glm::vec3(0.0f, 0.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
@@ -98,9 +100,6 @@ void VulkanRenderitzar::createFramebuffers() {
             depthBufferImageView
         };
 
-
-
-
         VkFramebufferCreateInfo framebufferCreateInfo = {};
         framebufferCreateInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
         framebufferCreateInfo.renderPass = renderPass; // Render pass layout the framebuffer will be used with
@@ -118,6 +117,68 @@ void VulkanRenderitzar::createFramebuffers() {
 
     }
 }
+
+
+int VulkanRenderitzar::createTexture(const std::string& filename) {
+    int width;
+    int height;
+
+    VkDeviceSize imageSize;
+    stbi_uc * imgData = loadTexture(filename, &width, &height, &imageSize);
+
+    VkBuffer imageStagingBuffer;
+    VkDeviceMemory imageStageBufferMemory;
+    createBuffer(mainDevice.physicalDevice, mainDevice.logicalDevice, imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                 &imageStagingBuffer, &imageStageBufferMemory);
+
+
+    void *data;
+    vkMapMemory(mainDevice.logicalDevice, imageStageBufferMemory, 0, imageSize, 0, &data);
+    memcpy(data, imgData, static_cast<size_t>(imageSize));
+    vkUnmapMemory(mainDevice.logicalDevice, imageStageBufferMemory);
+
+    stbi_image_free(imgData);
+
+    VkImage texImage;
+    VkDeviceMemory texImageMemory;
+    texImage = createImage(width, height,
+                           VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_TILING_OPTIMAL,
+                           VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
+                           VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &texImageMemory);
+
+    transitionImageLayout(mainDevice.logicalDevice, graphicsQueue, graphicsCommandPool,
+                          texImage, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+
+
+    copyImageBuffer(mainDevice.logicalDevice, graphicsQueue, graphicsCommandPool, imageStagingBuffer, texImage, width, height);
+
+    transitionImageLayout(mainDevice.logicalDevice, graphicsQueue, graphicsCommandPool, texImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+
+    textureImages.push_back(texImage);
+    textureImageMemory.push_back(texImageMemory);
+
+    vkDestroyBuffer(mainDevice.logicalDevice, imageStagingBuffer, nullptr);
+    vkFreeMemory(mainDevice.logicalDevice, imageStageBufferMemory, nullptr);
+
+    // Return index of new texture image
+    return textureImages.size() - 1;
+}
+
+stbi_uc * VulkanRenderitzar::loadTexture(const std::string& filename, int* width, int *height, VkDeviceSize * imageSize) {
+    int channels;
+    std::string fileLoc = "../Textures/" + filename;
+    stbi_uc* image = stbi_load(fileLoc.c_str(), width, height, &channels, STBI_rgb_alpha);
+
+    if (!image) {
+        throw std::runtime_error("Failed to load the image");
+    }
+
+    *imageSize = *width * *height * 4;
+
+    return image;
+}
+
 
 void VulkanRenderitzar::createRenderPass() {
 
@@ -670,6 +731,11 @@ void VulkanRenderitzar::cleanup() {
 
     // aligned_free... we do not have a free for alloc_aligned...
     // free(modelTransferSpace);
+
+    for (size_t i = 0; i < textureImages.size(); i++) {
+        vkDestroyImage(mainDevice.logicalDevice, textureImages[i], nullptr);
+        vkFreeMemory(mainDevice.logicalDevice, textureImageMemory[i], nullptr);
+    }
 
     vkDestroyImageView(mainDevice.logicalDevice, depthBufferImageView, nullptr);
     vkDestroyImage(mainDevice.logicalDevice, depthBufferImage, nullptr);

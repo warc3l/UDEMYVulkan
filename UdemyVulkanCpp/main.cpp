@@ -1,3 +1,4 @@
+#define STB_IMAGE_IMPLEMENTATION
 #include "GLFW/glfw3.h"
 #include "GLM/glm.hpp"
 #include <vulkan/vulkan.h>

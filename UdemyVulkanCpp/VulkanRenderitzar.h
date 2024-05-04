@@ -17,6 +17,7 @@
 #include <array>
 #include <iostream>
 #include "Mesh.h"
+#include "stb_image.h"
 
 class VulkanRenderitzar {
 
@@ -91,6 +92,9 @@ private:
     VkRenderPass renderPass;
     VkPushConstantRange pushConstantRange;
 
+    std::vector<VkImage> textureImages;
+    std::vector<VkDeviceMemory> textureImageMemory;
+
     VkCommandPool graphicsCommandPool; // A pool, similar in Metal
 
     // We need two signals,
@@ -115,6 +119,8 @@ private:
     void createDescriptorPool();
     void createDescriptorSets();
     void createPushConstantRange();
+    int createTexture(const std::string& filename);
+    stbi_uc * loadTexture(const std::string& filename, int* width, int *height, VkDeviceSize * imageSize);
     void updateUniformBuffers(uint32_t imageIndex);
 
     void recordCommands(uint32_t currentImage);
