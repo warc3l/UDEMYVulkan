@@ -23,6 +23,8 @@ void initWindow(std::string sName = "Window", const int width = 800, const int h
 }
 
 int main() {
+    printf("PETNIS");
+    system("say 'petnis'");
 
     initWindow("Test Window", 800, 600);
 

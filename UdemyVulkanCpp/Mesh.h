@@ -22,7 +22,7 @@ class Mesh {
 public:
     Mesh();
     Mesh(VkPhysicalDevice physicalDevice, VkDevice newDevice, VkQueue transformQueue,
-         VkCommandPool transferCommandPool, std::vector<Vertex>* vertices, std::vector<uint32_t>* indices);
+         VkCommandPool transferCommandPool, std::vector<Vertex>* vertices, std::vector<uint32_t>* indices, int texId);
 
     void setModel(glm::mat4 model);
     UboModel& getModel();
@@ -43,12 +43,17 @@ public:
         return indexBuffer;
     }
 
+    int getTexId() {
+        return texId;
+    }
+
     void destroyBuffers();
 
     ~Mesh();
 
 private:
     UboModel uboModel;
+    int texId;
 
     int indexCount;
     int vertexCount;

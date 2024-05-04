@@ -73,8 +73,13 @@ private:
     };
 
     VkDescriptorSetLayout descriptorSetLayout;
+    VkDescriptorSetLayout samplerSetLayout;
+
     VkDescriptorPool descriptorPool;
+    VkDescriptorPool samplerDescriptorPool;
+
     std::vector<VkDescriptorSet> descriptorSets;
+    std::vector<VkDescriptorSet> samplerDescriptorSets;
 
     std::vector<VkBuffer> vpUniformBuffer;
     std::vector<VkDeviceMemory> vpUniformBufferMemory;
@@ -92,8 +97,10 @@ private:
     VkRenderPass renderPass;
     VkPushConstantRange pushConstantRange;
 
+    VkSampler textureSampler;
     std::vector<VkImage> textureImages;
     std::vector<VkDeviceMemory> textureImageMemory;
+    std::vector<VkImageView> textureImageViews;
 
     VkCommandPool graphicsCommandPool; // A pool, similar in Metal
 
@@ -114,12 +121,17 @@ private:
     void createCommandPool();
     void createCommandBuffers();
     void createSynchronization();
+    void createTextureSampler();
+    int createTextureDescriptor(VkImageView textureImage);
     void createDescriptorSetLayout();
     void createUniformBuffers();
     void createDescriptorPool();
     void createDescriptorSets();
     void createPushConstantRange();
-    int createTexture(const std::string& filename);
+
+
+    int createTextureImage(const std::string& filename);
+    int createTexture(std::string filename);
     stbi_uc * loadTexture(const std::string& filename, int* width, int *height, VkDeviceSize * imageSize);
     void updateUniformBuffers(uint32_t imageIndex);
 
