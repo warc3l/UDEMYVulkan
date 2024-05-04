@@ -63,6 +63,10 @@ private:
     std::vector<VkFramebuffer> swapChainFrameBuffers;
     std::vector<VkCommandBuffer> commandBuffers;
 
+    VkImage depthBufferImage;
+    VkDeviceMemory depthBufferImageMemory;
+    VkImageView depthBufferImageView;
+
     const std::vector<const char*> validationLayers = {
             "VK_LAYER_KHRONOS_validation"
     };
@@ -102,6 +106,7 @@ private:
     void createRenderPass();
     void createGraphicsPipeline();
     void createFramebuffers();
+    void createDepthBufferImage();
     void createCommandPool();
     void createCommandBuffers();
     void createSynchronization();
@@ -141,8 +146,9 @@ private:
     VkSurfaceFormatKHR chooseSurfaceFormat (const std::vector<VkSurfaceFormatKHR>& formats);
     VkPresentModeKHR  chooseBestPresentationMode(const std::vector<VkPresentModeKHR>& presentationModes);
     VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& surfaceCapabilitiesKhr);
+    VkFormat chooseSupportedFormat(const std::vector<VkFormat> &formats, VkImageTiling tiling, VkFormatFeatureFlags featureFlags);
 
-
+    VkImage createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags useFlags, VkMemoryPropertyFlags propFlags, VkDeviceMemory *imageMemory);
     VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
     VkShaderModule createShaderModule(const std::vector<char>& code);
 };
