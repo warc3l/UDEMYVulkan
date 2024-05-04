@@ -23,10 +23,8 @@ void initWindow(std::string sName = "Window", const int width = 800, const int h
 }
 
 int main() {
-    printf("PETNIS");
-    system("say 'petnis'");
 
-    initWindow("Test Window", 800, 600);
+    initWindow("Test Window", 1366, 768);
 
     if ( vulkanRenderitzar.init(window) == EXIT_FAILURE ) {
         return EXIT_FAILURE;
@@ -35,6 +33,9 @@ int main() {
     float angle = 0.0f;
     float deltaTime = 0.0f;
     float lastTime = 0.0f;
+
+    // Downloaded from: https://free3d.com/3d-model/sh-60-seahawk-32184.html
+    int helicopter = vulkanRenderitzar.createMeshModel("../Models/Seahawk.obj");
 
     while (!glfwWindowShouldClose(window)) {
         float now = glfwGetTime();
@@ -46,19 +47,10 @@ int main() {
             angle = angle - 360;
         }
 
-        glm::mat4 firstModel(1.0f);
-        glm::mat4 secondModel(1.0f);
+        glm::mat4 testMat = glm::rotate(glm::mat4(1.0f), glm::radians(angle), glm::vec3(0.0f, 1.0f, 0.0f));
+        testMat = glm::rotate(testMat, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+        vulkanRenderitzar.updateModel(helicopter, testMat);
 
-        firstModel = glm::translate(firstModel, glm::vec3(0.0f, 0.0f, -2.5f));
-        firstModel = glm::rotate(firstModel, glm::radians(angle), glm::vec3(0.0f, 0.0f, 1.0f));
-
-        secondModel = glm::translate(secondModel, glm::vec3(0.0f, 0.0f, -3.0f));
-        secondModel = glm::rotate(secondModel, glm::radians(-angle * 10), glm::vec3(0.0f, 0.0f, 1.0f));
-
-        vulkanRenderitzar.updateModel(0, firstModel);
-        vulkanRenderitzar.updateModel(1, secondModel);
-
-//        vulkanRenderitzar.updateModel();
         vulkanRenderitzar.draw();
         glfwPollEvents();
     }

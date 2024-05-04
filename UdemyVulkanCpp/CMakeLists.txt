@@ -23,9 +23,13 @@ add_executable(UdemyVulkanCpp main.cpp
         VulkanRenderitzar.h
         Util.h
         Mesh.cpp
-        Mesh.h)
+        Mesh.h
+        MeshModel.cpp
+        MeshModel.h)
 
 target_sources(UdemyVulkanCpp PRIVATE main.cpp)
 target_link_libraries(UdemyVulkanCpp PRIVATE Vulkan::Vulkan)
 target_link_libraries(UdemyVulkanCpp PRIVATE GLFW)
+target_link_libraries(UdemyVulkanCpp PRIVATE ASSIMP)
+
 

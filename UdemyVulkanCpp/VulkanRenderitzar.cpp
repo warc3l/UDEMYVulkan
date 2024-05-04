@@ -36,10 +36,10 @@ int VulkanRenderitzar::init(GLFWwindow* newWindow) {
         createSynchronization();
 
         uboViewProjection.projection = glm::perspective(glm::radians(45.0f), (float) swapChainExtent.width / (float) swapChainExtent.height, 0.1f, 100.0f );
-        uboViewProjection.view = glm::lookAt(glm::vec3(2.0f, 0.0f, 2.0f), glm::vec3(0.0f, 0.0f, -2.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        uboViewProjection.view = glm::lookAt(glm::vec3(75.0f, 0.0f, 20.0f), glm::vec3(0.0f, 0.0f, -2.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
         uboViewProjection.projection[1][1] *= -1;
-
+        /*
         // Vertex Data
         std::vector<Vertex> meshVertices = {
                 { { -0.4, 0.4, 0.0 },{ 1.0f, 0.0f, 0.0f }, {1.0f, 1.0f} },	// 0
@@ -74,10 +74,14 @@ int VulkanRenderitzar::init(GLFWwindow* newWindow) {
                                 createTexture("giraffe.jpg"));
         meshList.push_back(firstMesh);
         meshList.push_back(secondMesh);
+        */
 
-        glm::mat4 meshModelMatrix = meshList[0].getModel().model;
-        meshModelMatrix = glm::rotate(meshModelMatrix, glm::radians(45.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-        meshList[0].setModel(meshModelMatrix);
+//        glm::mat4 meshModelMatrix = meshList[0].getModel().model;
+//        meshModelMatrix = glm::rotate(meshModelMatrix, glm::radians(45.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+//        meshList[0].setModel(meshModelMatrix);
+
+
+        createTexture("giraffe.jpg");
 
     } catch(const std::runtime_error & e) {
         std::cout << "ERROR: " << e.what() << std::endl;
@@ -588,34 +592,47 @@ void VulkanRenderitzar::recordCommands(uint32_t currentImage) {
                     // vkCmdBindPipeline(kdsfsd, ... );
 
                     for (size_t j = 0; j < meshList.size(); j++) {
-                        VkBuffer vertexBuffer[] = { meshList[j].getVertexBuffer() };
-                        VkDeviceSize offsets[] = { 0 };
-                        vkCmdBindVertexBuffers(commandBuffers[currentImage], 0, 1, vertexBuffer, offsets);
+                        MeshModel thisModel = meshList[j];
+
+                        vkCmdPushConstants(
+                                commandBuffers[currentImage],
+                                pipelineLayout,
+                                VK_SHADER_STAGE_VERTEX_BIT,
+                                0,
+                                sizeof (UboModel),
+                                &thisModel.getModel() );
+
+                        for (size_t k = 0; k < thisModel.getMeshCount(); k++) {
+                            VkBuffer vertexBuffer[] = { thisModel.getMesh(k)->getVertexBuffer() };
+                            VkDeviceSize offsets[] = { 0 };
+                            vkCmdBindVertexBuffers(commandBuffers[currentImage], 0, 1, vertexBuffer, offsets);
 
 
-                        vkCmdBindIndexBuffer(commandBuffers[currentImage], meshList[j].getIndexBuffer(), 0, VK_INDEX_TYPE_UINT32 );
+                            vkCmdBindIndexBuffer(commandBuffers[currentImage], thisModel.getMesh(k)->getIndexBuffer(), 0, VK_INDEX_TYPE_UINT32 );
 
-                        // Dynamic Offset Amount
-                        uint32_t dynamicOffset = static_cast<uint32_t>(modelUniformAlignment) * j;
+                            // Dynamic Offset Amount
+                            uint32_t dynamicOffset = static_cast<uint32_t>(modelUniformAlignment) * j;
 
-                        vkCmdBindDescriptorSets(commandBuffers[currentImage], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
-                                                0, 1, &descriptorSets[currentImage], 0, nullptr);
+                            vkCmdBindDescriptorSets(commandBuffers[currentImage], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
+                                                    0, 1, &descriptorSets[currentImage], 0, nullptr);
 
-                        vkCmdPushConstants( commandBuffers[currentImage], pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(UboModel),	&meshList[j].getModel());
-
-
-                        std::array<VkDescriptorSet, 2> descriptorSetGroup = { descriptorSets[currentImage], samplerDescriptorSets[meshList[j].getTexId()] };
-
-                        vkCmdBindDescriptorSets(commandBuffers[currentImage], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
-                                                0, static_cast<uint32_t>(descriptorSetGroup.size()), descriptorSetGroup.data(), 0, nullptr);
-
-                        // Now we need to execute something, how many vertices, the instances.
-                    // we can draw the objects instances, by a single draw call if the instance is loaded
+                            vkCmdPushConstants( commandBuffers[currentImage], pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(UboModel),	&meshList[j].getModel());
 
 
-                    // If we would liek to draw WITHOUT index:
-                    // vkCmdDraw(commandBuffers[i], static_cast<uint32_t>(firstMesh.getVertexCount()), 1, 0, 0);
-                    vkCmdDrawIndexed(commandBuffers[currentImage], meshList[j].getIndicesCount(), 1, 0, 0, 0);
+                            std::array<VkDescriptorSet, 2> descriptorSetGroup = { descriptorSets[currentImage], samplerDescriptorSets[thisModel.getMesh(k)->getTexId()] };
+
+                            vkCmdBindDescriptorSets(commandBuffers[currentImage], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
+                                                    0, static_cast<uint32_t>(descriptorSetGroup.size()), descriptorSetGroup.data(), 0, nullptr);
+
+                            // Now we need to execute something, how many vertices, the instances.
+                            // we can draw the objects instances, by a single draw call if the instance is loaded
+
+
+                            // If we would liek to draw WITHOUT index:
+                            // vkCmdDraw(commandBuffers[i], static_cast<uint32_t>(firstMesh.getVertexCount()), 1, 0, 0);
+                            vkCmdDrawIndexed(commandBuffers[currentImage], thisModel.getMesh(k)->getIndicesCount(), 1, 0, 0, 0);
+
+                        }
 
                     }
 
@@ -637,6 +654,35 @@ void VulkanRenderitzar::recordCommands(uint32_t currentImage) {
 
 }
 
+
+int VulkanRenderitzar::createMeshModel(std::string modelFile)
+{
+    Assimp::Importer importer;
+    const aiScene *scene = importer.ReadFile(modelFile, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_JoinIdenticalVertices);
+    if (!scene) {
+        throw std::runtime_error("Failed to load model! (" + modelFile + ")");
+    }
+
+    std::vector<std::string> textureNames = MeshModel::LoadMaterials(scene);
+    std::vector<int> matToTex(textureNames.size());
+
+    for (size_t i = 0; i < textureNames.size(); i++) {
+        if (textureNames[i].empty()) {
+            matToTex[i] = 0;
+        }
+        else {
+            matToTex[i] = createTexture(textureNames[i]);
+        }
+    }
+
+    std::vector<Mesh> modelMeshes = MeshModel::LoadNode(mainDevice.physicalDevice, mainDevice.logicalDevice, graphicsQueue, graphicsCommandPool,
+                                                        scene->mRootNode, scene, matToTex);
+
+    MeshModel meshModel = MeshModel(modelMeshes);
+    meshList.push_back(meshModel);
+
+    return meshList.size() - 1;
+}
 
 void VulkanRenderitzar::createSynchronization() {
 
@@ -823,6 +869,10 @@ void VulkanRenderitzar::cleanup() {
     // aligned_free... we do not have a free for alloc_aligned...
     // free(modelTransferSpace);
 
+    for (size_t i = 0; i < meshList.size(); i++) {
+        meshList[i].destroyMeshModel();
+    }
+
     vkDestroyDescriptorPool(mainDevice.logicalDevice, samplerDescriptorPool, nullptr);
     vkDestroyDescriptorSetLayout(mainDevice.logicalDevice, samplerSetLayout, nullptr);
     vkDestroySampler(mainDevice.logicalDevice, textureSampler, nullptr);
@@ -849,9 +899,9 @@ void VulkanRenderitzar::cleanup() {
 
     }
 
-    for(size_t i = 0; i < meshList.size(); i++) {
-        meshList[i].destroyBuffers();
-    }
+//    for(size_t i = 0; i < meshList.size(); i++) {
+//        meshList[i].destroyBuffers();
+//    }
 
     for (size_t i = 0; i < MAX_FRAME_DRAW; i++) {
         vkDestroySemaphore(mainDevice.logicalDevice, renderFinished[i], nullptr);
