@@ -69,9 +69,13 @@ private:
     std::vector<VkFramebuffer> swapChainFrameBuffers;
     std::vector<VkCommandBuffer> commandBuffers;
 
-    VkImage depthBufferImage;
-    VkDeviceMemory depthBufferImageMemory;
-    VkImageView depthBufferImageView;
+    std::vector<VkImage> colorBufferImage;
+    std::vector<VkDeviceMemory> colorBufferImageMemory;
+    std::vector<VkImageView> colorBufferImageView;
+
+    std::vector<VkImage> depthBufferImage;
+    std::vector<VkDeviceMemory> depthBufferImageMemory;
+    std::vector<VkImageView> depthBufferImageView;
 
     const std::vector<const char*> validationLayers = {
             "VK_LAYER_KHRONOS_validation"
@@ -79,12 +83,15 @@ private:
 
     VkDescriptorSetLayout descriptorSetLayout;
     VkDescriptorSetLayout samplerSetLayout;
+    VkDescriptorSetLayout inputSetLayout;
 
     VkDescriptorPool descriptorPool;
     VkDescriptorPool samplerDescriptorPool;
+    VkDescriptorPool inputDescriptorPool;
 
     std::vector<VkDescriptorSet> descriptorSets;
     std::vector<VkDescriptorSet> samplerDescriptorSets;
+    std::vector<VkDescriptorSet> inputDescriptorSets;
 
     std::vector<VkBuffer> vpUniformBuffer;
     std::vector<VkDeviceMemory> vpUniformBufferMemory;
@@ -99,6 +106,10 @@ private:
     // Pipeline, can do
     VkPipeline graphicsPipeline;
     VkPipelineLayout pipelineLayout;
+
+    VkPipeline secondPipeline;
+    VkPipelineLayout secondPipelineLayout;
+
     VkRenderPass renderPass;
     VkPushConstantRange pushConstantRange;
 
@@ -132,6 +143,8 @@ private:
     void createUniformBuffers();
     void createDescriptorPool();
     void createDescriptorSets();
+    void createColorBufferImage();
+    void createInputDescriptorSets();
     void createPushConstantRange();
 
 
